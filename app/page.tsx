@@ -1,69 +1,109 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ChevronDown, CircleHelp, FilePenLine, Info } from "lucide-react";
+import SearchBox from "@/components/SearchBox";
+import HeroCarousel from "@/components/HeroCarousel";
+
+const cards = [
+  {
+    href: "/content",
+    title: "View our Content",
+    Icon: FilePenLine,
+    text: "Want to check out everything we have to offer? Click here to browse through our content!",
+  },
+  {
+    href: "/about",
+    title: "About",
+    Icon: Info,
+    text: "Want to know more about what our site is about? Click here and learn more about the site in the About section!",
+  },
+  {
+    href: "/faq",
+    title: "FAQ",
+    Icon: CircleHelp,
+    text: "Still have questions about our site? Click here and visit the FAQ section!",
+  },
+];
+
+const creators = [
+  { name: "Name 1", role: "Roles" },
+  { name: "Name 2", role: "Roles" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <section className="grid border-b border-black/10 md:min-h-[calc(100vh-4rem-3.5rem)] md:grid-cols-2">
+        <div className="flex items-center px-6 py-16 md:px-16">
+          <div className="w-full">
+            <h1 className="max-w-xl text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+              Every asset. Every license. One search.
+            </h1>
+            <p className="mt-4 max-w-md text-sm text-black/70">
+              We index free and licensed sound effects, music, graphics, and{" "}
+              <span className="whitespace-nowrap">b-roll</span> from across the
+              web, and show exactly what you can do with each one.
+            </p>
+            <div className="mt-8">
+              <SearchBox />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="relative min-h-[320px] border-black/10 md:border-l">
+          <HeroCarousel />
         </div>
-      </main>
-    </div>
+      </section>
+
+      <a
+        href="#explore"
+        className="flex h-14 items-center justify-center gap-1 border-b border-black/10 text-sm hover:bg-black/5"
+      >
+        Learn More <ChevronDown size={16} />
+      </a>
+
+      <section id="explore" className="mx-auto max-w-7xl scroll-mt-4 px-6 py-12">
+        <h2 className="text-2xl font-bold">More to explore</h2>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          {cards.map(({ href, title, Icon, text }) => (
+            <Link
+              key={title}
+              href={href}
+              className="flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white p-8 text-center shadow-md transition duration-200 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100"            >
+              <Icon size={28} strokeWidth={1.75} />
+              <h3 className="text-xl font-bold">{title}</h3>
+              <p className="text-sm text-black/70">{text}</p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-[3fr_2fr]">
+          <Link
+            href="/"
+            className="min-h-64 rounded-xl border border-black/10 bg-white p-6 shadow-md transition hover:shadow-lg"
+          >
+            <h3 className="text-xl font-bold">Link to repository</h3>
+          </Link>
+
+          <div className="rounded-xl border border-black/10 bg-white p-6 shadow-md">
+            <h3 className="text-xl font-bold">Check out the Creators</h3>
+            <ul className="mt-4 space-y-3">
+              {creators.map(({ name, role }) => (
+                <li
+                  key={name}
+                  className="flex items-center gap-4 rounded-lg border border-black/10 bg-white p-3 shadow-md"
+                >
+                  <div className="h-14 w-14 shrink-0 rounded-full border border-black/10 bg-neutral-100" />
+                  <div>
+                    <p className="font-bold">{name}</p>
+                    <p className="text-sm font-semibold">{role}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
