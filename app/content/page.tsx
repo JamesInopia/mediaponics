@@ -1,7 +1,18 @@
+import { Suspense } from "react";
+import ContentBrowser from "@/components/ContentBrowser";
+
 export default function ContentPage() {
   return (
-    <main className="mx-auto max-w-7xl px-6 py-12">
-      <h1 className="text-3xl font-bold">Content</h1>
+    <main>
+      <Suspense
+        fallback={
+          <p className="px-6 py-16 text-center text-sm text-black/60">
+            Loading...
+          </p>
+        }
+      >
+        <ContentBrowser />
+      </Suspense>
     </main>
   );
 }

@@ -1,29 +1,24 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Info } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
 
-const LOREM =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-const sources = [
-  { title: "Supported Source", text: LOREM },
-  { title: "Open Source", text: LOREM },
-];
-
-const creators = [
-  { name: "Creator 1", roles: "", contribution: "" },
-  { name: "Creator 2", roles: "", contribution: "" },
-];
-
 const navItems = [
-  { id: "about-the-project", label: "About the Project" },
+  { id: "about", label: "About the Project" },
   { id: "how-it-works", label: "How it works" },
   { id: "sources", label: "Sources" },
   { id: "creators", label: "Creators" },
   { id: "disclaimer", label: "Disclaimer" },
   { id: "contact", label: "Contact" },
 ];
+
+const cardClass = "rounded-xl border border-black/10 bg-white p-6 shadow-md";
+const bodyClass = "text-sm leading-7 text-black/70";
+
+const supportedSources = ["Source 1", "Source 2", "Source 3"];
+
+const creators = [{ name: "Creator 1" }, { name: "Creator 2" }];
 
 function Section({
   id,
@@ -42,9 +37,6 @@ function Section({
   );
 }
 
-const cardClass =
-  "rounded-xl border border-black/10 bg-white p-6 shadow-md";
-
 export default function AboutPage() {
   return (
     <main>
@@ -55,56 +47,96 @@ export default function AboutPage() {
         subtitle="Behind the scenes: See what this project is all about."
       />
 
+      {/* Right padding reserves room for the floating page navigation. */}
       <div className="lg:pr-[min(21rem,max(0px,calc(1632px_-_100vw)))]">
         <div className="mx-auto max-w-4xl space-y-12 px-6 py-12">
-          <Section id="about-the-project" title="About the Project">
-            <p className="text-sm leading-7 text-black/70">{LOREM}</p>
+          <Section id="about" title="About the Project">
+            <p className={bodyClass}>
+              Mediaponics is an open-source search for free and licensed assets
+              for video editors: sound effects, music, graphics, and b-roll.
+              These assets are scattered across dozens of sites, each with its
+              own license. Mediaponics brings them into one search and shows
+              what you are allowed to do with each one.
+            </p>
           </Section>
 
           <Section id="how-it-works" title="How it works">
-            <p className="text-sm leading-7 text-black/70">{LOREM}</p>
+            <p className={bodyClass}>
+              We index metadata (title, creator, duration, license and link)
+              and send you to the official source. We don&apos;t host other
+              people&apos;s media. Assets under CC0 or public domain can be
+              downloaded directly; for everything else we show the license and
+              attribution you need, and link to the official page.
+            </p>
           </Section>
 
           <Section id="sources" title="Sources">
             <div className="grid gap-6 md:grid-cols-2">
-              {sources.map(({ title, text }) => (
-                <article key={title} className={cardClass}>
-                  <h3 className="text-xl font-bold">{title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-black/70">{text}</p>
-                </article>
-              ))}
+              <div className={cardClass}>
+                <h3 className="text-xl font-bold">Supported Source</h3>
+                <p className={`mt-3 ${bodyClass}`}>
+                  Sites whose assets we search and link to. Each one is listed
+                  with the asset types it offers and its license.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {supportedSources.map((name) => (
+                    <li key={name} className="flex justify-between gap-4">
+                      <span className="font-semibold">{name}</span>
+                      <span className="text-black/60">Asset types · License</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className={cardClass}>
+                <h3 className="text-xl font-bold">Open Source</h3>
+                <p className={`mt-3 ${bodyClass}`}>
+                  Mediaponics is open source. The code and license rules live
+                  in a public repository, and anyone can add a source, fix a
+                  license entry or report an error.
+                </p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li>
+                    <Link href="/" className="font-semibold underline">
+                      Repository
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/" className="font-semibold underline">
+                      How to contribute
+                    </Link>
+                  </li>
+                  <li className="text-black/60">Project license: to be added</li>
+                </ul>
+              </div>
             </div>
           </Section>
 
           <Section id="creators" title="Creators">
             <div className="grid gap-6 md:grid-cols-2">
-              {creators.map(({ name, roles, contribution }) => (
-                <article key={name} className={cardClass}>
-                  <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 shrink-0 rounded-full border border-black/10 bg-neutral-100" />
-                    <h3 className="text-xl font-bold">{name}</h3>
-                  </div>
-                  <dl className="mt-4 space-y-1 text-sm">
-                    <div className="flex gap-1">
-                      <dt className="font-semibold">Roles:</dt>
-                      <dd className="text-black/70">{roles}</dd>
-                    </div>
-                    <div className="flex gap-1">
-                      <dt className="font-semibold">Contribution:</dt>
-                      <dd className="text-black/70">{contribution}</dd>
-                    </div>
-                  </dl>
-                </article>
+              {creators.map(({ name }) => (
+                <div key={name} className={cardClass}>
+                  <h3 className="text-xl font-bold">{name}</h3>
+                  <p className="mt-3 text-sm text-black/70">Roles:</p>
+                  <p className="mt-1 text-sm text-black/70">Contribution:</p>
+                </div>
               ))}
             </div>
           </Section>
 
           <Section id="disclaimer" title="Disclaimer">
-            <p className="text-sm leading-7 text-black/70">{LOREM}</p>
+            <p className={bodyClass}>
+              Mediaponics is informational only. The license set by each source
+              is the authority, so always check the official page before using
+              an asset. License details shown here may be out of date.
+            </p>
           </Section>
 
           <Section id="contact" title="Contact">
-            <p className="text-sm leading-7 text-black/70">{LOREM}</p>
+            <p className={bodyClass}>
+              Questions, corrections or removal requests? Contact details will
+              be added here.
+            </p>
           </Section>
         </div>
       </div>

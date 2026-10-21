@@ -1,0 +1,217 @@
+"use client";
+
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
+import FilterMenu from "@/components/FilterMenu";
+import { AssetCard, AssetRow } from "@/components/AssetViews";
+import {
+  ASSET_TYPES,
+  LICENSES,
+  MOCK_ASSETS,
+  SECTION_ORDER,
+  isAudio,
+  matchesQuery,
+  type AssetType,
+  type LicenseId,
+} from "@/lib/assets";
+
+const PATH = "/content";
+const PER_SECTION = 3;
+const gridClass = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
+
+export default function ContentBrowser() {
+  const searchParams = useSearchParams();
+
+  const q = searchParams.get("q") ?? "";
+  const typeParam = searchParams.get("type") ?? "";
+  const type: AssetType | "" = (ASSET_TYPES as readonly string[]).includes(
+    typeParam
+  )
+    ? (typeParam as AssetType)
+    : "";
+  const licenseParam = searchParams.get("license") ?? "";
+  const license: LicenseId | "" = licenseParam in LICENSES
+    ? (licenseParam as LicenseId)
+    : "";
+  const commercial = searchParams.get("commercial") === "1";
+
+  function update(
+    changes: Record<string, string | null>,
+    mode: "push" | "replace" = "push"
+  ) {
+    const next = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(changes)) {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    const qs = next.toString();
+    const url = qs ? `${PATH}?${qs}` : PATH;
+    if (mode === "push") window.history.pushState(null, "", url);
+    else window.history.replaceState(null, "", url);
+  }
+
+  const results = useMemo(
+    () =>
+      MOCK_ASSETS.filter(
+        (a) =>
+          (!type || a.type === type) &&
+          (!license || a.license === license) &&
+          (!commercial || LICENSES[a.license].commercial) &&
+          (!q || matchesQuery(a, q))
+      ),
+    [type, license, commercial, q]
+  );
+
+  const hasSearchOrFilters = Boolean(q || license || commercial);
+  const listView = type !== "" && isAudio(type);
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const value = String(
+      new FormData(e.currentTarget).get("q") ?? ""
+    ).trim();
+    update({ q: value || null });
+  }
+
+  return (
+    <>
+      <section className="mx-auto max-w-3xl px-6 pt-10 text-center">
+        <h1 className="text-xl font-bold md:text-2xl">
+          Every asset. Every license. One search.
+        </h1>
+
+        <div
+          role="group"
+          aria-label="Asset type"
+          className="mt-4 flex flex-wrap justify-center gap-2"
+        >
+          {(["", ...ASSET_TYPES] as const).map((t) => {
+            const on = type === t;
+            return (
+              <button
+                key={t || "all"}
+                type="button"
+                aria-pressed={on}
+                onClick={() => update({ type: t || null })}
+                className={`rounded-full border border-black px-4 py-1 text-xs ${
+                  on ? "bg-black text-white" : "bg-white hover:bg-black/5"
+                }`}
+              >
+                {t || "All"}
+              </button>
+            );
+          })}
+        </div>
+        <form
+          key={q}
+          onSubmit={onSubmit}
+          role="search"
+          className="relative mt-4 flex items-center rounded-full border border-black bg-white py-1.5 pl-5 pr-2 shadow-md"
+        >
+          <input
+            type="text"
+            name="q"
+            defaultValue={q}
+            placeholder="Search"
+            aria-label="Search assets"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
+          />
+          <FilterMenu
+            license={license}
+            commercialOnly={commercial}
+            onLicenseChange={(v) => update({ license: v || null }, "replace")}
+            onCommercialChange={(v) =>
+              update({ commercial: v ? "1" : null }, "replace")
+            }
+          />
+          <button
+            type="submit"
+            aria-label="Search"
+            className="ml-1 flex h-9 w-9 items-center justify-center rounded-full bg-black text-white hover:bg-black/80"
+          >
+            <Search size={16} />
+          </button>
+        </form>
+      </section>
+      <section
+        className={`mx-auto px-6 py-10 ${listView ? "max-w-3xl" : "max-w-5xl"}`}
+      >
+        <div className="mb-6 flex items-center justify-between gap-4 text-sm text-black/60">
+          <p aria-live="polite">
+            {results.length} {results.length === 1 ? "result" : "results"}
+            {q ? ` for “${q}”` : ""}
+          </p>
+          {hasSearchOrFilters && (
+            <button
+              type="button"
+              onClick={() =>
+                update({ q: null, license: null, commercial: null })
+              }
+              className="underline hover:no-underline"
+            >
+              Clear search and filters
+            </button>
+          )}
+        </div>
+        {results.length === 0 ? (
+          <div className="rounded-xl border border-black/10 bg-white p-10 text-center shadow-md">
+            <p className="font-semibold">No assets found</p>
+            <p className="mt-1 text-sm text-black/60">
+              Try different keywords, another asset type, or clear your filters.
+            </p>
+          </div>
+        ) : type === "" ? (
+          <div className="space-y-12">
+            {SECTION_ORDER.map((section) => {
+              const items = results.filter((a) => a.type === section);
+              if (items.length === 0) return null;
+              return (
+                <section key={section} aria-labelledby={`sec-${section}`}>
+                  <div className="mb-4 flex items-baseline justify-between gap-4">
+                    <h2
+                      id={`sec-${section}`}
+                      className="text-xl font-bold"
+                    >
+                      {section}
+                    </h2>
+                    {items.length > PER_SECTION && (
+                      <button
+                        type="button"
+                        onClick={() => update({ type: section })}
+                        className="text-sm font-semibold underline hover:no-underline"
+                      >
+                        See all {items.length}
+                      </button>
+                    )}
+                  </div>
+                  <div className={gridClass}>
+                    {items.slice(0, PER_SECTION).map((a) => (
+                      <AssetCard key={a.id} asset={a} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        ) : listView ? (
+          <div className="space-y-4">
+            {results.map((a) => (
+              <AssetRow key={a.id} asset={a} />
+            ))}
+          </div>
+        ) : (
+          <div className={gridClass}>
+            {results.map((a) => (
+              <AssetCard key={a.id} asset={a} />
+            ))}
+          </div>
+        )}
+
+        <p className="mt-12 text-center text-xs text-black/40">
+          Sample data for layout preview only.
+        </p>
+      </section>
+    </>
+  );
+}

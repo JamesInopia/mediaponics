@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import Accordion, { type AccordionItem } from "@/components/Accordion";
 import PageHeader from "@/components/PageHeader";
@@ -7,62 +8,98 @@ type FaqSection = { id: string; title: string; items: AccordionItem[] };
 
 const sections: FaqSection[] = [
   {
-    id: "general",
-    title: "General",
-    items: [
-      {
-        question: "What is Mediaponics?",
-        answer: [
-          "Mediaponics is an open-source search for free and licensed sound effects, music, graphics, and b-roll. We index assets from across the web and show exactly what you can do with each one.",
-          "We link to the original source; we don't host their media.",
-        ],
-      },
-      {
-        question: "Is Mediaponics free to use?",
-        answer: [
-          "Yes. Searching and browsing the catalog is free. Individual assets keep the license and pricing set by their original source.",
-        ],
-      },
-    ],
-  },
-  {
-    id: "content-licenses",
-    title: "Content & Licenses",
-    items: [
-      {
-        question: "Where does the content come from?",
-        answer: [
-          "Assets are indexed from supported sources and open-source collections. See the Sources section on the About page for the full list.",
-        ],
-      },
-      {
-        question: "Can I use every asset commercially?",
-        answer: [
-          "Not necessarily. Each asset has its own license, which we summarize on its listing. Always confirm the terms at the original source before publishing.",
-        ],
-      },
-      {
-        question: "Do I need to credit the creator?",
-        answer: [
-          "It depends on the license. Listings tell you when attribution is required and, where possible, provide the credit text to copy.",
-        ],
-      },
-    ],
-  },
-  {
     id: "using-the-site",
-    title: "Using the Site",
+    title: "Using the site",
     items: [
       {
-        question: "How do I search for assets?",
+        question: "Can I use these assets commercially?",
         answer: [
-          "Use the search box on the home page or the Content page. You can narrow results by type and license.",
+          "It depends on each asset's license. CC0 and public domain assets are free for any use, CC BY assets need credit, and non-commercial licenses don't allow commercial use. Always confirm on the source's official page.",
         ],
       },
       {
-        question: "I found a wrong or missing license. What should I do?",
+        question: "What do the license badges mean?",
         answer: [
-          "Please report it using the contact details on the About page so we can correct it.",
+          "Each badge summarizes the asset's license: whether you can use it commercially, edit it, and whether you must credit the creator.",
+        ],
+      },
+      {
+        question:
+          "Why does one asset download here while another sends me to another site?",
+        answer: [
+          "Assets under CC0 or public domain can be downloaded directly. For everything else, we send you to the official page so you get the file and its terms from the source.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "attribution",
+    title: "Attribution",
+    items: [
+      {
+        question: "When do I need to credit the creator?",
+        answer: [
+          "Whenever the license requires it, for example CC BY. Each asset shows the credit text to copy. When in doubt, credit the creator anyway.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "data",
+    title: "Data",
+    items: [
+      {
+        question: "Where does the data come from?",
+        answer: [
+          "From the supported sources listed on the About page. We store only metadata such as title, creator, duration, license and link, not the media files.",
+        ],
+      },
+      {
+        question: "How often is it updated?",
+        answer: [
+          "Each source is re-checked on a schedule, and every asset shows when its license was last verified.",
+        ],
+      },
+      {
+        question: "Why is an asset missing or outdated?",
+        answer: [
+          "Sources can remove or change assets, and our data can lag behind. Check the official page, and let us know about the mistake.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "contributing",
+    title: "Contributing",
+    items: [
+      {
+        question: "How do I add a source or fix a license entry?",
+        answer: [
+          "Mediaponics is open source. Open an issue or a pull request in the repository.",
+        ],
+      },
+      {
+        question: "How do I report an error or request removal?",
+        answer: [
+          "Use the Report content link in the footer and include the asset's link and the reason.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "developers",
+    title: "Developers",
+    items: [
+      {
+        question: "Is there an API or data dump?",
+        answer: [
+          "That is planned. API docs and data snapshots will be linked in the footer once they are available.",
+        ],
+      },
+      {
+        question: "What license is the metadata under?",
+        answer: [
+          "That hasn't been decided yet. Assets themselves always stay under their original licenses.",
         ],
       },
     ],
@@ -81,6 +118,7 @@ export default function FaqPage() {
         subtitle="Get quick answers to your questions"
       />
 
+      {/* Right padding reserves room for the floating page navigation. */}
       <div className="lg:pr-[min(21rem,max(0px,calc(1632px_-_100vw)))]">
         <div className="mx-auto max-w-4xl space-y-12 px-6 py-12">
           {sections.map(({ id, title, items }) => (
@@ -93,6 +131,14 @@ export default function FaqPage() {
               />
             </section>
           ))}
+
+          <p className="text-sm text-black/70">
+            Can&apos;t find your answer?{" "}
+            <Link href="/about#contact" className="font-semibold underline">
+              Contact us
+            </Link>
+            .
+          </p>
         </div>
       </div>
 

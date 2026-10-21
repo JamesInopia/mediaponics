@@ -1,52 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, EllipsisVertical } from "lucide-react";
-
-const TYPES = [
-  "Images",
-  "Vectors",
-  "GIFs",
-  "Music",
-  "Sound Effects",
-  "Stock Footage",
-];
-
-const LICENSES = [
-  { value: "", label: "Any license" },
-  { value: "cc0", label: "CC0 / Public domain" },
-  { value: "cc-by", label: "CC BY" },
-  { value: "cc-by-sa", label: "CC BY-SA" },
-  { value: "non-commercial", label: "Non-commercial" },
-];
+import { ChevronDown } from "lucide-react";
+import FilterMenu from "@/components/FilterMenu";
+import { ASSET_TYPES } from "@/lib/assets";
 
 export default function SearchBox() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState(""); // "" = all asset types
   const [license, setLicense] = useState("");
   const [commercialOnly, setCommercialOnly] = useState(false);
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const activeFilters = (license ? 1 : 0) + (commercialOnly ? 1 : 0);
-
-  useEffect(() => {
-    if (!open) return;
-    const onClick = (e: MouseEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,11 +22,6 @@ export default function SearchBox() {
     if (commercialOnly) params.set("commercial", "1");
     const qs = params.toString();
     router.push(qs ? `/content?${qs}` : "/content");
-  }
-
-  function clearFilters() {
-    setLicense("");
-    setCommercialOnly(false);
   }
 
   return (
@@ -77,6 +37,7 @@ export default function SearchBox() {
         />
 
         <div className="mt-4 flex items-center justify-between gap-2">
+          {/* Asset type dropdown (like OpenAlex's "works") */}
           <div className="relative">
             <select
               value={type}
@@ -85,7 +46,7 @@ export default function SearchBox() {
               className="cursor-pointer appearance-none rounded-md bg-transparent py-1.5 pl-2 pr-7 text-sm hover:bg-black/5"
             >
               <option value="">All assets</option>
-              {TYPES.map((t) => (
+              {ASSET_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
@@ -98,83 +59,12 @@ export default function SearchBox() {
           </div>
 
           <div className="flex items-center gap-2">
-            <div ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                aria-label="More filters"
-                aria-haspopup="dialog"
-                aria-expanded={open}
-                className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-black/5"
-              >
-                <EllipsisVertical size={18} />
-                {activeFilters > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
-                    {activeFilters}
-                  </span>
-                )}
-              </button>
-
-              {open && (
-                <div
-                  role="dialog"
-                  aria-label="More filters"
-                  className="absolute right-0 top-full z-20 mt-2 w-64 rounded-xl border border-black/10 bg-white p-4 text-sm shadow-lg"
-                >
-                  <fieldset>
-                    <legend className="text-xs font-semibold uppercase tracking-wide text-black/60">
-                      License
-                    </legend>
-                    <div className="mt-2 space-y-1">
-                      {LICENSES.map((l) => (
-                        <label
-                          key={l.value}
-                          className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
-                        >
-                          <input
-                            type="radio"
-                            name="license"
-                            value={l.value}
-                            checked={license === l.value}
-                            onChange={() => setLicense(l.value)}
-                            className="accent-black"
-                          />
-                          {l.label}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-
-                  <label className="mt-3 flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5">
-                    <input
-                      type="checkbox"
-                      checked={commercialOnly}
-                      onChange={(e) => setCommercialOnly(e.target.checked)}
-                      className="accent-black"
-                    />
-                    Commercial use allowed
-                  </label>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={clearFilters}
-                      className="text-xs underline hover:no-underline"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setOpen(false)}
-                      className="rounded-md border border-black px-3 py-1 text-xs font-semibold hover:bg-black hover:text-white"
-                    >
-                      Done
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
+            <FilterMenu
+              license={license}
+              commercialOnly={commercialOnly}
+              onLicenseChange={setLicense}
+              onCommercialChange={setCommercialOnly}
+            />
             <button
               type="submit"
               className="rounded-lg bg-black px-5 py-2 text-sm font-semibold text-white hover:bg-black/80"
@@ -184,9 +74,8 @@ export default function SearchBox() {
           </div>
         </div>
       </div>
-
       <div className="mt-4 flex flex-wrap gap-2">
-        {TYPES.map((t) => {
+        {ASSET_TYPES.map((t) => {
           const on = type === t;
           return (
             <button
