@@ -9,7 +9,6 @@ import AssetPanel from "@/components/AssetPanel";
 import AssetRail from "@/components/AssetRail";
 import {
   ASSET_TYPES,
-  MOCK_ASSETS,
   SECTION_ORDER,
   isAudio,
   matchesQuery,
@@ -20,6 +19,7 @@ import {
   type Asset,
   type AssetType,
 } from "@/lib/assets";
+import { MOCK_ASSETS } from "@/lib/mock-assets";
 
 const PATH = "/content";
 const PER_SECTION = 4;

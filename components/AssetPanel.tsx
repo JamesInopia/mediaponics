@@ -15,6 +15,7 @@ import {
   formatAddedDate,
   formatDuration,
   isAudio,
+  sourceName,
   type Asset,
 } from "@/lib/assets";
 
@@ -145,7 +146,7 @@ function PanelBody({ asset }: { asset: Asset }) {
         )}
         {asset.genre && <Row label="Genre" value={asset.genre} />}
         <Row label="Type" value={asset.type} />
-        <Row label="Source" value={asset.source} />
+        <Row label="Source" value={sourceName(asset.source)} />
         <Row label="Added" value={formatAddedDate(asset.addedAt)} />
       </dl>
 

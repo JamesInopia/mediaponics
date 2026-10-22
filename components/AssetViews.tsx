@@ -6,6 +6,7 @@ import {
   LICENSES,
   formatDuration,
   isAudio,
+  sourceName,
   type Asset,
 } from "@/lib/assets";
 
@@ -212,7 +213,7 @@ export function AssetCard({ asset, selected = false, onSelect }: ViewProps) {
             </button>
           </h3>
           <p className="truncate text-sm text-black/60">
-            by {asset.creator} · {asset.source}
+            by {asset.creator} · {sourceName(asset.source)}
           </p>
         </div>
         <div className="mt-auto flex items-center justify-between gap-2">
@@ -249,7 +250,7 @@ export function AssetRow({ asset, selected = false, onSelect }: ViewProps) {
           </button>
         </h3>
         <p className="truncate text-sm text-black/60">
-          by {asset.creator} · {asset.source}
+          by {asset.creator} · {sourceName(asset.source)}
         </p>
       </div>
       <Waveform
