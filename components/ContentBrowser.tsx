@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import FilterMenu from "@/components/FilterMenu";
 import { AssetCard, AssetRow } from "@/components/AssetViews";
+import AssetPanel from "@/components/AssetPanel";
+import AssetRail from "@/components/AssetRail";
 import {
   ASSET_TYPES,
   LICENSES,
@@ -12,13 +14,15 @@ import {
   SECTION_ORDER,
   isAudio,
   matchesQuery,
+  type Asset,
   type AssetType,
   type LicenseId,
 } from "@/lib/assets";
 
 const PATH = "/content";
-const PER_SECTION = 3;
-const gridClass = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
+const PER_SECTION = 4;
+const RAIL_MAX = 12;
+const gridClass = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
 export default function ContentBrowser() {
   const searchParams = useSearchParams();
@@ -30,11 +34,17 @@ export default function ContentBrowser() {
   )
     ? (typeParam as AssetType)
     : "";
-  const licenseParam = searchParams.get("license") ?? "";
-  const license: LicenseId | "" = licenseParam in LICENSES
-    ? (licenseParam as LicenseId)
-    : "";
+  const licenseKey = (searchParams.get("license") ?? "")
+    .split(",")
+    .filter((l, i, all) => Object.keys(LICENSES).includes(l) && all.indexOf(l) === i)
+    .join(",");
+  const licenses = useMemo(
+    () => (licenseKey ? (licenseKey.split(",") as LicenseId[]) : []),
+    [licenseKey]
+  );
   const commercial = searchParams.get("commercial") === "1";
+  const selectedId = searchParams.get("asset") ?? "";
+  const selected = MOCK_ASSETS.find((a) => a.id === selectedId) ?? null;
 
   function update(
     changes: Record<string, string | null>,
@@ -56,14 +66,17 @@ export default function ContentBrowser() {
       MOCK_ASSETS.filter(
         (a) =>
           (!type || a.type === type) &&
-          (!license || a.license === license) &&
+          (licenses.length === 0 || licenses.includes(a.license)) &&
           (!commercial || LICENSES[a.license].commercial) &&
           (!q || matchesQuery(a, q))
       ),
-    [type, license, commercial, q]
+    [type, licenses, commercial, q]
   );
 
-  const hasSearchOrFilters = Boolean(q || license || commercial);
+  const selectAsset = (a: Asset) => update({ asset: a.id });
+  const closePanel = () => update({ asset: null });
+
+  const hasSearchOrFilters = Boolean(q || licenses.length > 0 || commercial);
   const listView = type !== "" && isAudio(type);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -71,7 +84,7 @@ export default function ContentBrowser() {
     const value = String(
       new FormData(e.currentTarget).get("q") ?? ""
     ).trim();
-    update({ q: value || null });
+    update({ q: value || null, asset: null });
   }
 
   return (
@@ -118,9 +131,11 @@ export default function ContentBrowser() {
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
           />
           <FilterMenu
-            license={license}
+            licenses={licenses}
             commercialOnly={commercial}
-            onLicenseChange={(v) => update({ license: v || null }, "replace")}
+            onLicensesChange={(v) =>
+              update({ license: v.length ? v.join(",") : null }, "replace")
+            }
             onCommercialChange={(v) =>
               update({ commercial: v ? "1" : null }, "replace")
             }
@@ -134,9 +149,7 @@ export default function ContentBrowser() {
           </button>
         </form>
       </section>
-      <section
-        className={`mx-auto px-6 py-10 ${listView ? "max-w-3xl" : "max-w-5xl"}`}
-      >
+      <section className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-6 flex items-center justify-between gap-4 text-sm text-black/60">
           <p aria-live="polite">
             {results.length} {results.length === 1 ? "result" : "results"}
@@ -185,11 +198,26 @@ export default function ContentBrowser() {
                       </button>
                     )}
                   </div>
-                  <div className={gridClass}>
-                    {items.slice(0, PER_SECTION).map((a) => (
-                      <AssetCard key={a.id} asset={a} />
+                  <AssetRail
+                    label={section}
+                    viewAll={
+                      items.length > RAIL_MAX
+                        ? {
+                            text: `View all ${items.length} ${section}`,
+                            onClick: () => update({ type: section }),
+                          }
+                        : undefined
+                    }
+                  >
+                    {items.slice(0, RAIL_MAX).map((a) => (
+                      <AssetCard
+                        key={a.id}
+                        asset={a}
+                        selected={a.id === selectedId}
+                        onSelect={() => selectAsset(a)}
+                      />
                     ))}
-                  </div>
+                  </AssetRail>
                 </section>
               );
             })}
@@ -197,13 +225,23 @@ export default function ContentBrowser() {
         ) : listView ? (
           <div className="space-y-4">
             {results.map((a) => (
-              <AssetRow key={a.id} asset={a} />
+              <AssetRow
+                key={a.id}
+                asset={a}
+                selected={a.id === selectedId}
+                onSelect={() => selectAsset(a)}
+              />
             ))}
           </div>
         ) : (
           <div className={gridClass}>
             {results.map((a) => (
-              <AssetCard key={a.id} asset={a} />
+              <AssetCard
+                        key={a.id}
+                        asset={a}
+                        selected={a.id === selectedId}
+                        onSelect={() => selectAsset(a)}
+                      />
             ))}
           </div>
         )}
@@ -212,6 +250,8 @@ export default function ContentBrowser() {
           Sample data for layout preview only.
         </p>
       </section>
+
+      <AssetPanel asset={selected} onClose={closePanel} />
     </>
   );
 }

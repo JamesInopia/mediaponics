@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { Download, ExternalLink, Pause, Play } from "lucide-react";
 import {
   LICENSES,
@@ -9,18 +9,18 @@ import {
   type Asset,
 } from "@/lib/assets";
 
-const CLIP_SECONDS = 10; // audio previews are capped at 10 seconds
+export const CLIP_SECONDS = 5;
 
-function seedOf(id: string) {
+export function seedOf(id: string) {
   let h = 0;
   for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return h;
 }
 
-function useFakePlayback(durationSec: number) {
+export function useFakePlayback(durationSec: number) {
   const clip = Math.max(1, Math.min(durationSec, CLIP_SECONDS));
   const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0); // 0..1
+  const [progress, setProgress] = useState(0);
   const progressRef = useRef(0);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ function useFakePlayback(durationSec: number) {
   return { playing, progress, toggle: () => setPlaying((p) => !p) };
 }
 
-function Waveform({
+export function Waveform({
   seed,
   progress,
   bars = 36,
@@ -71,7 +71,7 @@ function Waveform({
   );
 }
 
-function PlayButton({
+export function PlayButton({
   playing,
   onClick,
   title,
@@ -102,7 +102,7 @@ function PlayButton({
   );
 }
 
-function LicenseBadge({ asset }: { asset: Asset }) {
+export function LicenseBadge({ asset }: { asset: Asset }) {
   const license = LICENSES[asset.license];
   const open = asset.license === "cc0";
   return (
@@ -141,14 +141,36 @@ function AssetAction({ asset }: { asset: Asset }) {
   );
 }
 
-export function AssetCard({ asset }: { asset: Asset }) {
+type ViewProps = {
+  asset: Asset;
+  selected?: boolean;
+  onSelect: () => void;
+};
+
+function openUnlessInteractive(e: MouseEvent, onSelect: () => void) {
+  if ((e.target as HTMLElement).closest("a, button")) return;
+  onSelect();
+}
+
+export const LIFT_HOVER =
+  "transition duration-200 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100";
+export const GRAY_HOVER =
+  "transition-colors duration-200 hover:bg-neutral-100 motion-reduce:transition-none";
+
+const titleButtonClass =
+  "block w-full truncate text-left font-semibold hover:underline";
+
+export function AssetCard({ asset, selected = false, onSelect }: ViewProps) {
   const audio = isAudio(asset.type);
   const seed = seedOf(asset.id);
   const duration = asset.durationSec ?? 0;
   const { playing, progress, toggle } = useFakePlayback(duration);
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl border border-black/10 bg-white shadow-md">
+    <article
+      onClick={(e) => openUnlessInteractive(e, onSelect)}
+      className={`group flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white shadow-md ${LIFT_HOVER} ${selected ? "border-black ring-1 ring-black" : "border-black/10"}`}
+    >
       {audio ? (
         <div className="relative flex aspect-video flex-col items-center justify-center gap-4 bg-neutral-50">
           <PlayButton
@@ -190,8 +212,15 @@ export function AssetCard({ asset }: { asset: Asset }) {
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="min-w-0">
-          <h3 className="truncate font-semibold" title={asset.title}>
-            {asset.title}
+          <h3 title={asset.title}>
+            <button
+              type="button"
+              onClick={onSelect}
+              aria-haspopup="dialog"
+              className={titleButtonClass}
+            >
+              {asset.title}
+            </button>
           </h3>
           <p className="truncate text-sm text-black/60">
             by {asset.creator} · {asset.source}
@@ -206,17 +235,29 @@ export function AssetCard({ asset }: { asset: Asset }) {
   );
 }
 
-export function AssetRow({ asset }: { asset: Asset }) {
+export function AssetRow({ asset, selected = false, onSelect }: ViewProps) {
   const seed = seedOf(asset.id);
   const duration = asset.durationSec ?? 0;
   const { playing, progress, toggle } = useFakePlayback(duration);
 
   return (
-    <article className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-black/10 bg-white p-4 shadow-md">
+    <article
+      onClick={(e) => openUnlessInteractive(e, onSelect)}
+      className={`flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border bg-white p-4 shadow-md ${GRAY_HOVER} ${
+        selected ? "border-black ring-1 ring-black" : "border-black/10"
+      }`}
+    >
       <PlayButton playing={playing} onClick={toggle} title={asset.title} />
       <div className="min-w-0 flex-1 basis-44">
-        <h3 className="truncate font-semibold" title={asset.title}>
-          {asset.title}
+        <h3 title={asset.title}>
+          <button
+            type="button"
+            onClick={onSelect}
+            aria-haspopup="dialog"
+            className={titleButtonClass}
+          >
+            {asset.title}
+          </button>
         </h3>
         <p className="truncate text-sm text-black/60">
           by {asset.creator} · {asset.source}
@@ -226,7 +267,7 @@ export function AssetRow({ asset }: { asset: Asset }) {
         seed={seed}
         progress={progress}
         bars={40}
-        className="hidden h-8 w-48 md:flex"
+        className="hidden h-8 w-48 md:flex lg:w-80 xl:w-[28rem]"
       />
       <span
         className="w-10 shrink-0 text-right text-sm tabular-nums text-black/70"

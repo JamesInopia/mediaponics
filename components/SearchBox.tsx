@@ -9,8 +9,8 @@ import { ASSET_TYPES } from "@/lib/assets";
 export default function SearchBox() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [type, setType] = useState(""); // "" = all asset types
-  const [license, setLicense] = useState("");
+  const [type, setType] = useState("");
+  const [licenses, setLicenses] = useState<string[]>([]);
   const [commercialOnly, setCommercialOnly] = useState(false);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -18,7 +18,7 @@ export default function SearchBox() {
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (type) params.set("type", type);
-    if (license) params.set("license", license);
+    if (licenses.length) params.set("license", licenses.join(","));
     if (commercialOnly) params.set("commercial", "1");
     const qs = params.toString();
     router.push(qs ? `/content?${qs}` : "/content");
@@ -37,7 +37,6 @@ export default function SearchBox() {
         />
 
         <div className="mt-4 flex items-center justify-between gap-2">
-          {/* Asset type dropdown (like OpenAlex's "works") */}
           <div className="relative">
             <select
               value={type}
@@ -60,9 +59,9 @@ export default function SearchBox() {
 
           <div className="flex items-center gap-2">
             <FilterMenu
-              license={license}
+              licenses={licenses}
               commercialOnly={commercialOnly}
-              onLicenseChange={setLicense}
+              onLicensesChange={setLicenses}
               onCommercialChange={setCommercialOnly}
             />
             <button

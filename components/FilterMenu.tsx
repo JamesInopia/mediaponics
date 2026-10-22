@@ -5,21 +5,21 @@ import { EllipsisVertical } from "lucide-react";
 import { LICENSE_OPTIONS } from "@/lib/assets";
 
 type Props = {
-  license: string;
+  licenses: string[];
   commercialOnly: boolean;
-  onLicenseChange: (value: string) => void;
+  onLicensesChange: (values: string[]) => void;
   onCommercialChange: (value: boolean) => void;
 };
 
 export default function FilterMenu({
-  license,
+  licenses,
   commercialOnly,
-  onLicenseChange,
+  onLicensesChange,
   onCommercialChange,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const activeFilters = (license ? 1 : 0) + (commercialOnly ? 1 : 0);
+  const activeFilters = licenses.length + (commercialOnly ? 1 : 0);
 
   useEffect(() => {
     if (!open) return;
@@ -65,23 +65,34 @@ export default function FilterMenu({
             <legend className="text-xs font-semibold uppercase tracking-wide text-black/60">
               License
             </legend>
+            <p className="mt-1 text-xs text-black/50">
+              Pick one or more. None selected = any license.
+            </p>
             <div className="mt-2 space-y-1">
-              {LICENSE_OPTIONS.map((l) => (
-                <label
-                  key={l.value}
-                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
-                >
-                  <input
-                    type="radio"
-                    name="license"
-                    value={l.value}
-                    checked={license === l.value}
-                    onChange={() => onLicenseChange(l.value)}
-                    className="accent-black"
-                  />
-                  {l.label}
-                </label>
-              ))}
+              {LICENSE_OPTIONS.filter((l) => l.value).map((l) => {
+                const checked = licenses.includes(l.value);
+                return (
+                  <label
+                    key={l.value}
+                    className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
+                  >
+                    <input
+                      type="checkbox"
+                      value={l.value}
+                      checked={checked}
+                      onChange={() =>
+                        onLicensesChange(
+                          checked
+                            ? licenses.filter((v) => v !== l.value)
+                            : [...licenses, l.value]
+                        )
+                      }
+                      className="accent-black"
+                    />
+                    {l.label}
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
 
@@ -99,7 +110,7 @@ export default function FilterMenu({
             <button
               type="button"
               onClick={() => {
-                onLicenseChange("");
+                onLicensesChange([]);
                 onCommercialChange(false);
               }}
               className="text-xs underline hover:no-underline"

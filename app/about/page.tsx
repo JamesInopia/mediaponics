@@ -47,7 +47,6 @@ export default function AboutPage() {
         subtitle="Behind the scenes: See what this project is all about."
       />
 
-      {/* Right padding reserves room for the floating page navigation. */}
       <div className="lg:pr-[min(21rem,max(0px,calc(1632px_-_100vw)))]">
         <div className="mx-auto max-w-4xl space-y-12 px-6 py-12">
           <Section id="about" title="About the Project">

@@ -24,9 +24,23 @@ const cards = [
   },
 ];
 
+const REPO_URL = "https://github.com/JamesInopia/mediaponics";
+function GithubMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+    >
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  );
+}
+
 const creators = [
-  { name: "Name 1", role: "Roles" },
-  { name: "Name 2", role: "Roles" },
+  { name: "James Angelo Inopia", role: "Project Manager, Fullstack Developer" },
+  { name: "Harvey Tyson Ablen", role: "Back-end Developer" },
 ];
 
 export default function Home() {
@@ -77,31 +91,41 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-6 grid gap-6 md:grid-cols-[3fr_2fr]">
-          <Link
-            href="/"
-            className="min-h-64 rounded-xl border border-black/10 bg-white p-6 shadow-md transition hover:shadow-lg"
-          >
-            <h3 className="text-xl font-bold">Link to repository</h3>
-          </Link>
-
-          <div className="rounded-xl border border-black/10 bg-white p-6 shadow-md">
-            <h3 className="text-xl font-bold">Check out the Creators</h3>
-            <ul className="mt-4 space-y-3">
-              {creators.map(({ name, role }) => (
-                <li
-                  key={name}
-                  className="flex items-center gap-4 rounded-lg border border-black/10 bg-white p-3 shadow-md"
-                >
-                  <div className="h-14 w-14 shrink-0 rounded-full border border-black/10 bg-neutral-100" />
-                  <div>
-                    <p className="font-bold">{name}</p>
-                    <p className="text-sm font-semibold">{role}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+        <h2 className="mt-12 text-2xl font-bold">Link to Repository</h2>
+        <div className="mt-6 flex flex-col gap-6 rounded-2xl border border-[#444c56] bg-[#22272e] p-6 text-[#cdd9e5] shadow-lg md:flex-row md:items-center md:gap-8 md:px-10 md:py-8">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-[#444c56] bg-[#2d333b]">
+            <GithubMark className="h-9 w-9" />
           </div>
+          <p className="min-w-0 text-sm leading-7 text-[#adbac7] md:max-w-xl md:text-base md:leading-8">
+            Mediaponics is open source. Browse the code, report an issue, or
+            help us add a new source or fix a license entry.
+          </p>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-white/15 bg-[#347d39] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#46954a] md:ml-auto"
+          >
+            <GithubMark className="h-4 w-4" /> View on GitHub
+          </a>
+        </div>
+
+        <h2 className="mt-12 text-2xl font-bold">Check out the Creators</h2>
+        <div className="mt-6 rounded-xl border border-black/10 bg-white p-6 shadow-md">
+          <ul className="grid gap-4 md:grid-cols-2">
+            {creators.map(({ name, role }) => (
+              <li
+                key={name}
+                className="flex items-center gap-6 rounded-lg border border-black/10 bg-white p-3 shadow-md"
+              >
+                <div className="h-20 w-20 shrink-0 rounded-full border border-black/10 bg-neutral-100 shadow-md" />
+                <div>
+                  <p className="text-xl font-bold">{name}</p>
+                  <p className="mt-1 text-sm font-semibold">{role}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </main>
