@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { Download, ExternalLink, Pause, Play } from "lucide-react";
+import { ExternalLink, Pause, Play } from "lucide-react";
 import {
   LICENSES,
   formatDuration,
@@ -118,17 +118,6 @@ export function LicenseBadge({ asset }: { asset: Asset }) {
 }
 
 function AssetAction({ asset }: { asset: Asset }) {
-  if (asset.license === "cc0") {
-    return (
-      <a
-        href={asset.sourceUrl}
-        download
-        className="inline-flex w-[7.5rem] shrink-0 items-center justify-center gap-1.5 rounded-lg bg-black px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/80"
-      >
-        <Download size={14} /> Download
-      </a>
-    );
-  }
   return (
     <a
       href={asset.sourceUrl}

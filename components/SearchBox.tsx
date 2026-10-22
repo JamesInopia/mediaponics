@@ -4,22 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import FilterMenu from "@/components/FilterMenu";
-import { ASSET_TYPES } from "@/lib/assets";
+import { ASSET_TYPES, type DateRangeId, type SortId } from "@/lib/assets";
 
 export default function SearchBox() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [type, setType] = useState("");
-  const [licenses, setLicenses] = useState<string[]>([]);
-  const [commercialOnly, setCommercialOnly] = useState(false);
+  const [sort, setSort] = useState<SortId>("relevance");
+  const [dateRange, setDateRange] = useState<DateRangeId>("any");
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (type) params.set("type", type);
-    if (licenses.length) params.set("license", licenses.join(","));
-    if (commercialOnly) params.set("commercial", "1");
+    if (sort !== "relevance") params.set("sort", sort);
+    if (dateRange !== "any") params.set("added", dateRange);
     const qs = params.toString();
     router.push(qs ? `/content?${qs}` : "/content");
   }
@@ -59,10 +59,10 @@ export default function SearchBox() {
 
           <div className="flex items-center gap-2">
             <FilterMenu
-              licenses={licenses}
-              commercialOnly={commercialOnly}
-              onLicensesChange={setLicenses}
-              onCommercialChange={setCommercialOnly}
+              sort={sort}
+              dateRange={dateRange}
+              onSortChange={setSort}
+              onDateRangeChange={setDateRange}
             />
             <button
               type="submit"

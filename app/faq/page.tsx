@@ -25,9 +25,9 @@ const sections: FaqSection[] = [
       },
       {
         question:
-          "Why does one asset download here while another sends me to another site?",
+          "Can I download assets directly from Mediaponics?",
         answer: [
-          "Assets under CC0 or public domain can be downloaded directly. For everything else, we send you to the official page so you get the file and its terms from the source.",
+          "No. We don't host any files. Every asset has a Go to source button that sends you to the official page, so you get the file and its terms from the source.",
         ],
       },
     ],

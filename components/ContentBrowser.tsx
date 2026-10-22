@@ -9,14 +9,16 @@ import AssetPanel from "@/components/AssetPanel";
 import AssetRail from "@/components/AssetRail";
 import {
   ASSET_TYPES,
-  LICENSES,
   MOCK_ASSETS,
   SECTION_ORDER,
   isAudio,
   matchesQuery,
+  parseDateRange,
+  parseSort,
+  sortAssets,
+  withinDateRange,
   type Asset,
   type AssetType,
-  type LicenseId,
 } from "@/lib/assets";
 
 const PATH = "/content";
@@ -34,15 +36,8 @@ export default function ContentBrowser() {
   )
     ? (typeParam as AssetType)
     : "";
-  const licenseKey = (searchParams.get("license") ?? "")
-    .split(",")
-    .filter((l, i, all) => Object.keys(LICENSES).includes(l) && all.indexOf(l) === i)
-    .join(",");
-  const licenses = useMemo(
-    () => (licenseKey ? (licenseKey.split(",") as LicenseId[]) : []),
-    [licenseKey]
-  );
-  const commercial = searchParams.get("commercial") === "1";
+  const sort = parseSort(searchParams.get("sort"));
+  const dateRange = parseDateRange(searchParams.get("added"));
   const selectedId = searchParams.get("asset") ?? "";
   const selected = MOCK_ASSETS.find((a) => a.id === selectedId) ?? null;
 
@@ -63,20 +58,24 @@ export default function ContentBrowser() {
 
   const results = useMemo(
     () =>
-      MOCK_ASSETS.filter(
-        (a) =>
-          (!type || a.type === type) &&
-          (licenses.length === 0 || licenses.includes(a.license)) &&
-          (!commercial || LICENSES[a.license].commercial) &&
-          (!q || matchesQuery(a, q))
+      sortAssets(
+        MOCK_ASSETS.filter(
+          (a) =>
+            (!type || a.type === type) &&
+            withinDateRange(a, dateRange) &&
+            (!q || matchesQuery(a, q))
+        ),
+        sort
       ),
-    [type, licenses, commercial, q]
+    [type, dateRange, sort, q]
   );
 
   const selectAsset = (a: Asset) => update({ asset: a.id });
   const closePanel = () => update({ asset: null });
 
-  const hasSearchOrFilters = Boolean(q || licenses.length > 0 || commercial);
+  const hasSearchOrFilters = Boolean(
+    q || sort !== "relevance" || dateRange !== "any"
+  );
   const listView = type !== "" && isAudio(type);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -131,13 +130,13 @@ export default function ContentBrowser() {
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
           />
           <FilterMenu
-            licenses={licenses}
-            commercialOnly={commercial}
-            onLicensesChange={(v) =>
-              update({ license: v.length ? v.join(",") : null }, "replace")
+            sort={sort}
+            dateRange={dateRange}
+            onSortChange={(v) =>
+              update({ sort: v === "relevance" ? null : v }, "replace")
             }
-            onCommercialChange={(v) =>
-              update({ commercial: v ? "1" : null }, "replace")
+            onDateRangeChange={(v) =>
+              update({ added: v === "any" ? null : v }, "replace")
             }
           />
           <button
@@ -159,7 +158,7 @@ export default function ContentBrowser() {
             <button
               type="button"
               onClick={() =>
-                update({ q: null, license: null, commercial: null })
+                update({ q: null, sort: null, added: null })
               }
               className="underline hover:no-underline"
             >
@@ -171,7 +170,7 @@ export default function ContentBrowser() {
           <div className="rounded-xl border border-black/10 bg-white p-10 text-center shadow-md">
             <p className="font-semibold">No assets found</p>
             <p className="mt-1 text-sm text-black/60">
-              Try different keywords, another asset type, or clear your filters.
+              Try different keywords, another asset type, or a wider date range.
             </p>
           </div>
         ) : type === "" ? (

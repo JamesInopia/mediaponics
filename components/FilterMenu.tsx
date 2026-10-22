@@ -2,24 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import { EllipsisVertical } from "lucide-react";
-import { LICENSE_OPTIONS } from "@/lib/assets";
+import {
+  DATE_RANGE_OPTIONS,
+  SORT_OPTIONS,
+  type DateRangeId,
+  type SortId,
+} from "@/lib/assets";
 
 type Props = {
-  licenses: string[];
-  commercialOnly: boolean;
-  onLicensesChange: (values: string[]) => void;
-  onCommercialChange: (value: boolean) => void;
+  sort: SortId;
+  dateRange: DateRangeId;
+  onSortChange: (value: SortId) => void;
+  onDateRangeChange: (value: DateRangeId) => void;
 };
 
 export default function FilterMenu({
-  licenses,
-  commercialOnly,
-  onLicensesChange,
-  onCommercialChange,
+  sort,
+  dateRange,
+  onSortChange,
+  onDateRangeChange,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const activeFilters = licenses.length + (commercialOnly ? 1 : 0);
+  const activeFilters =
+    (sort !== "relevance" ? 1 : 0) + (dateRange !== "any" ? 1 : 0);
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +48,7 @@ export default function FilterMenu({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="More filters"
+        aria-label="Sort and filter"
         aria-haspopup="dialog"
         aria-expanded={open}
         className="relative flex h-9 w-9 items-center justify-center rounded-md hover:bg-black/5"
@@ -58,60 +64,63 @@ export default function FilterMenu({
       {open && (
         <div
           role="dialog"
-          aria-label="More filters"
+          aria-label="Sort and filter"
           className="absolute right-0 top-full z-20 mt-2 w-64 rounded-xl border border-black/10 bg-white p-4 text-left text-sm shadow-lg"
         >
           <fieldset>
             <legend className="text-xs font-semibold uppercase tracking-wide text-black/60">
-              License
+              Sort by
             </legend>
-            <p className="mt-1 text-xs text-black/50">
-              Pick one or more. None selected = any license.
-            </p>
             <div className="mt-2 space-y-1">
-              {LICENSE_OPTIONS.filter((l) => l.value).map((l) => {
-                const checked = licenses.includes(l.value);
-                return (
-                  <label
-                    key={l.value}
-                    className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
-                  >
-                    <input
-                      type="checkbox"
-                      value={l.value}
-                      checked={checked}
-                      onChange={() =>
-                        onLicensesChange(
-                          checked
-                            ? licenses.filter((v) => v !== l.value)
-                            : [...licenses, l.value]
-                        )
-                      }
-                      className="accent-black"
-                    />
-                    {l.label}
-                  </label>
-                );
-              })}
+              {SORT_OPTIONS.map((o) => (
+                <label
+                  key={o.value}
+                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
+                >
+                  <input
+                    type="radio"
+                    name="sort"
+                    value={o.value}
+                    checked={sort === o.value}
+                    onChange={() => onSortChange(o.value)}
+                    className="accent-black"
+                  />
+                  {o.label}
+                </label>
+              ))}
             </div>
           </fieldset>
 
-          <label className="mt-3 flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5">
-            <input
-              type="checkbox"
-              checked={commercialOnly}
-              onChange={(e) => onCommercialChange(e.target.checked)}
-              className="accent-black"
-            />
-            Commercial use allowed
-          </label>
+          <fieldset className="mt-4">
+            <legend className="text-xs font-semibold uppercase tracking-wide text-black/60">
+              Date added
+            </legend>
+            <div className="mt-2 space-y-1">
+              {DATE_RANGE_OPTIONS.map((o) => (
+                <label
+                  key={o.value}
+                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-black/5"
+                >
+                  <input
+                    type="radio"
+                    name="date-range"
+                    value={o.value}
+                    checked={dateRange === o.value}
+                    onChange={() => onDateRangeChange(o.value)}
+                    className="accent-black"
+                  />
+                  {o.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <div className="mt-4 flex items-center justify-between">
             <button
               type="button"
               onClick={() => {
-                onLicensesChange([]);
-                onCommercialChange(false);
+                onSortChange("relevance");
+                onDateRangeChange("any");
               }}
               className="text-xs underline hover:no-underline"
             >

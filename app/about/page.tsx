@@ -63,9 +63,9 @@ export default function AboutPage() {
             <p className={bodyClass}>
               We index metadata (title, creator, duration, license and link)
               and send you to the official source. We don&apos;t host other
-              people&apos;s media. Assets under CC0 or public domain can be
-              downloaded directly; for everything else we show the license and
-              attribution you need, and link to the official page.
+              people&apos;s media, so there are no downloads here: for every
+              asset we show the license and attribution you need, and link to
+              the official page where you can get the file.
             </p>
           </Section>
 

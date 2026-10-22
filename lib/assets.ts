@@ -51,13 +51,61 @@ export const LICENSES: Record<
   },
 };
 
-export const LICENSE_OPTIONS = [
-  { value: "", label: "Any license" },
-  { value: "cc0", label: "CC0 / Public domain" },
-  { value: "cc-by", label: "CC BY" },
-  { value: "cc-by-sa", label: "CC BY-SA" },
-  { value: "non-commercial", label: "Non-commercial" },
-];
+export const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevance" },
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "title", label: "Title (A–Z)" },
+] as const;
+
+export type SortId = (typeof SORT_OPTIONS)[number]["value"];
+
+export const DATE_RANGE_OPTIONS = [
+  { value: "any", label: "Any time", days: Infinity },
+  { value: "week", label: "Past week", days: 7 },
+  { value: "month", label: "Past month", days: 30 },
+  { value: "year", label: "Past year", days: 365 },
+] as const;
+
+export type DateRangeId = (typeof DATE_RANGE_OPTIONS)[number]["value"];
+
+export function parseSort(v: string | null | undefined): SortId {
+  return SORT_OPTIONS.some((o) => o.value === v) ? (v as SortId) : "relevance";
+}
+
+export function parseDateRange(v: string | null | undefined): DateRangeId {
+  return DATE_RANGE_OPTIONS.some((o) => o.value === v)
+    ? (v as DateRangeId)
+    : "any";
+}
+
+const DAY_MS = 86_400_000;
+
+export function withinDateRange(asset: Asset, range: DateRangeId) {
+  const days = DATE_RANGE_OPTIONS.find((o) => o.value === range)!.days;
+  if (!Number.isFinite(days)) return true;
+  return Date.now() - Date.parse(asset.addedAt) <= days * DAY_MS;
+}
+
+export function sortAssets(list: Asset[], sort: SortId): Asset[] {
+  if (sort === "relevance") return list;
+  const copy = [...list];
+  if (sort === "newest")
+    copy.sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt));
+  else if (sort === "oldest")
+    copy.sort((a, b) => Date.parse(a.addedAt) - Date.parse(b.addedAt));
+  else copy.sort((a, b) => a.title.localeCompare(b.title));
+  return copy;
+}
+
+export function formatAddedDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
 
 export type Asset = {
   id: string;
@@ -70,6 +118,7 @@ export type Asset = {
   sourceUrl: string;
   genre?: string;
   tags: string[];
+  addedAt: string;
 };
 
 export function formatDuration(sec: number) {
@@ -98,9 +147,20 @@ const CREATORS = [
 ];
 const SOURCES = ["Source A", "Source B", "Source C"];
 
+function mockAddedAt(key: string): string {
+  let h = 0;
+  for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const daysAgo = h % 420;
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() - daysAgo);
+  return d.toISOString().slice(0, 10);
+}
+
 function build(type: AssetType, prefix: string, seeds: Seed[]): Asset[] {
   return seeds.map((s, i) => ({
     id: `${prefix}-${i + 1}`,
+    addedAt: mockAddedAt(`${prefix}-${i + 1}`),
     type,
     creator: CREATORS[(i * 3 + prefix.length) % CREATORS.length],
     source: SOURCES[i % SOURCES.length],

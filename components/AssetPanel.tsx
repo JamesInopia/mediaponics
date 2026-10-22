@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronsRight, Download, ExternalLink } from "lucide-react";
+import { ChevronsRight, ExternalLink } from "lucide-react";
 import {
   CLIP_SECONDS,
   LicenseBadge,
@@ -10,13 +10,14 @@ import {
   seedOf,
   useFakePlayback,
 } from "@/components/AssetViews";
-import { LICENSES, formatDuration, isAudio, type Asset } from "@/lib/assets";
+import {
+  LICENSES,
+  formatAddedDate,
+  formatDuration,
+  isAudio,
+  type Asset,
+} from "@/lib/assets";
 
-/**
- * Right-hand info panel (OpenAlex-style): slides in when an asset is clicked,
- * stays open while you click other assets, closes with the » button or Esc.
- * Layout (Pixabay-style): actions first, then preview and details.
- */
 export default function AssetPanel({
   asset,
   onClose,
@@ -24,7 +25,6 @@ export default function AssetPanel({
   asset: Asset | null;
   onClose: () => void;
 }) {
-  // Keep the last asset around so the content doesn't vanish during the slide-out.
   const [shown, setShown] = useState<Asset | null>(asset);
   if (asset && asset !== shown) setShown(asset);
 
@@ -35,12 +35,10 @@ export default function AssetPanel({
     onCloseRef.current = onClose;
   });
 
-  // Move focus into the panel when it opens or switches asset.
   useEffect(() => {
     if (open) closeRef.current?.focus({ preventScroll: true });
   }, [open, asset?.id]);
 
-  // Esc closes the panel.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -76,7 +74,6 @@ export default function AssetPanel({
         </p>
       </div>
 
-      {/* key resets playback whenever a different asset is selected */}
       <PanelBody key={shown.id} asset={shown} />
     </aside>
   );
@@ -84,7 +81,6 @@ export default function AssetPanel({
 
 function PanelBody({ asset }: { asset: Asset }) {
   const license = LICENSES[asset.license];
-  const downloadable = asset.license === "cc0";
   const audio = isAudio(asset.type);
   const duration = asset.durationSec ?? 0;
   const seed = seedOf(asset.id);
@@ -95,44 +91,20 @@ function PanelBody({ asset }: { asset: Asset }) {
 
   return (
     <div className="flex-1 overflow-y-auto px-5 pb-8">
-      {/* 1. Actions (top, as in Pixabay) */}
-      <div className="flex gap-3">
-        {downloadable ? (
-          <a
-            href={asset.sourceUrl}
-            download
-            className={`${actionBase} bg-black text-white hover:bg-black/80`}
-          >
-            <Download size={16} /> Download
-          </a>
-        ) : (
-          <span
-            aria-disabled="true"
-            title="This license doesn't allow direct download here"
-            className={`${actionBase} cursor-not-allowed bg-black/10 text-black/40`}
-          >
-            <Download size={16} /> Download
-          </span>
-        )}
-        <a
-          href={asset.sourceUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`${actionBase} border border-black hover:bg-black hover:text-white`}
-        >
-          <ExternalLink size={16} /> Go to source
-        </a>
-      </div>
-      {!downloadable && (
-        <p className="mt-2 text-xs text-black/60">
-          Direct download is only offered for CC0 / public domain assets. Get
-          this one, with its terms, from the source.
-        </p>
-      )}
+      <a
+        href={asset.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${actionBase} w-full bg-black text-white hover:bg-black/80`}
+      >
+        <ExternalLink size={16} /> Go to source
+      </a>
+      <p className="mt-2 text-xs text-black/60">
+        Files are hosted by the source. Get this one, with its terms, there.
+      </p>
 
       <hr className="my-6 border-black/10" />
 
-      {/* 2. Preview */}
       {audio ? (
         <div className="relative flex flex-col items-center gap-4 rounded-xl bg-neutral-50 px-4 py-8">
           <PlayButton
@@ -164,7 +136,6 @@ function PanelBody({ asset }: { asset: Asset }) {
         </div>
       )}
 
-      {/* 3. Title, creator, duration, genre, tags */}
       <h2 className="mt-6 text-2xl font-bold leading-snug">{asset.title}</h2>
       <p className="mt-1 text-sm text-black/60">by {asset.creator}</p>
 
@@ -175,6 +146,7 @@ function PanelBody({ asset }: { asset: Asset }) {
         {asset.genre && <Row label="Genre" value={asset.genre} />}
         <Row label="Type" value={asset.type} />
         <Row label="Source" value={asset.source} />
+        <Row label="Added" value={formatAddedDate(asset.addedAt)} />
       </dl>
 
       {asset.tags && asset.tags.length > 0 && (
@@ -190,7 +162,6 @@ function PanelBody({ asset }: { asset: Asset }) {
         </ul>
       )}
 
-      {/* 4. License badge (colour-coded by how permissive it is) */}
       <hr className="my-6 border-black/10" />
       <div className="flex items-center gap-3">
         <LicenseBadge asset={asset} />
