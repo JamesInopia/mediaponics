@@ -43,3 +43,5 @@ next-env.d.ts
 
 #ingestion run logs
 /ingestion/logs
+
+/dist

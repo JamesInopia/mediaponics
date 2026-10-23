@@ -1,0 +1,33 @@
+name: snapshot
+
+on:
+  schedule:
+    - cron: "43 4 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run snapshot:ci
+      - name: Publish to rolling release
+        run: |
+          gh release view data-latest || gh release create data-latest --title "Latest data snapshot" --notes "Rolling weekly snapshot of live records."
+          gh release upload data-latest OUT_DIR/assets.jsonl.gz OUT_DIR/manifest.json --clobber

@@ -21,6 +21,7 @@ type MetaField = { value?: string };
 export type WikiPage = {
   pageid: number;
   title: string;
+  missing?: boolean;
   imageinfo?: {
     url?: string;
     descriptionurl?: string;
@@ -111,7 +112,7 @@ function classify(
     const cats = categories.join(" | ").toLowerCase();
     if (/sound effect|sfx|foley/.test(cats)) return { type: "Sound Effects" };
     if (/\bmusic\b|musical|\bsongs?\b|\binstrument/.test(cats)) return { type: "Music" };
-    return { skip: "audio_type_unclear" }; // Commons has no Music vs SFX field; do not guess
+    return { skip: "audio_type_unclear" };
   }
   return { skip: "unsupported_media_type" };
 }
@@ -227,6 +228,63 @@ async function apiGet(
     return body;
   }
   throw new Error("Commons API still lagging or rate limited after 5 attempts");
+}
+
+export type RefreshResult = {
+  assets: Asset[];
+  skips: Skip[];
+  missing: string[];
+  requests: number;
+};
+
+const ID_BATCH = 50; // API limit for non-bot clients
+
+export async function fetchWikimediaByIds(
+  ids: string[],
+  opts: Pick<FetchOptions, "userAgent" | "fetchFn" | "sleep" | "now" | "delayMs">,
+): Promise<RefreshResult> {
+  const delayMs = opts.delayMs ?? 1000;
+  const sleep = opts.sleep ?? realSleep;
+  const now = opts.now ?? (() => new Date());
+  const io = { userAgent: opts.userAgent, fetchFn: opts.fetchFn ?? fetch, sleep };
+  const out: RefreshResult = { assets: [], skips: [], missing: [], requests: 0 };
+
+  for (let i = 0; i < ids.length; i += ID_BATCH) {
+    const batch = ids.slice(i, i + ID_BATCH);
+    const body = await apiGet(
+      {
+        action: "query",
+        format: "json",
+        formatversion: "2",
+        maxlag: "5",
+        pageids: batch.join("|"),
+        prop: "imageinfo",
+        iiprop: "url|size|mime|mediatype|timestamp|extmetadata",
+        iiurlwidth: "640",
+        iiextmetadatafilter: "ObjectName|Artist|LicenseShortName|Restrictions|Categories",
+      },
+      io,
+    );
+    out.requests++;
+
+    const fetchedAt = now().toISOString();
+    const seen = new Set<string>();
+    for (const page of body.query?.pages ?? []) {
+      const id = String(page.pageid);
+      seen.add(id);
+      if (page.missing) {
+        out.missing.push(id);
+        continue;
+      }
+      const res = normalizePage(page, fetchedAt);
+      if ("skip" in res) out.skips.push(res.skip);
+      else out.assets.push(res.asset);
+    }
+    for (const id of batch) if (!seen.has(id)) out.missing.push(id);
+
+    if (i + ID_BATCH < ids.length) await sleep(delayMs);
+  }
+  return out;
 }
 
 export async function fetchWikimediaAssets(opts: FetchOptions): Promise<FetchResult> {

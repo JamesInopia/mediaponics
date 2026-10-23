@@ -24,6 +24,10 @@ function toRow(a: Asset): NewAssetRow {
     tags: a.tags,
     addedAt: new Date(a.addedAt),
     fetchedAt: new Date(a.fetchedAt),
+    removedAt: null,
+    removedReason: null,
+    checkFailures: 0,
+    lastCheckedAt: new Date(a.fetchedAt),
   };
 }
 
@@ -107,7 +111,13 @@ export async function upsertAssets(db: IngestDb, list: Asset[]): Promise<UpsertC
       if (unchangedIds.length) {
         await tx
           .update(assets)
-          .set({ fetchedAt: new Date(fetchedAt) })
+          .set({
+            fetchedAt: new Date(fetchedAt),
+            lastCheckedAt: new Date(fetchedAt),
+            removedAt: null,
+            removedReason: null,
+            checkFailures: 0,
+          })
           .where(and(eq(assets.source, source), inArray(assets.sourceId, unchangedIds)));
       }
     });

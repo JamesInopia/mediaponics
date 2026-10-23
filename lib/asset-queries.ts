@@ -6,6 +6,7 @@ import {
   eq,
   gte,
   inArray,
+  isNull,
   lte,
   sql,
   type SQL,
@@ -72,7 +73,7 @@ function toTsQuery(q: string): string | null {
 }
 
 function buildWhere(p: ParsedAssetParams, tsq: string | null, withType: boolean) {
-  const conds: SQL[] = [];
+  const conds: SQL[] = [isNull(assets.removedAt)];
   if (withType && p.type) conds.push(eq(assets.type, p.type));
   if (p.license.length > 0) conds.push(inArray(assets.license, p.license));
 
@@ -220,7 +221,7 @@ export async function getAsset(id: string): Promise<Asset | null> {
   const [row] = await db
     .select(ASSET_COLUMNS)
     .from(assets)
-    .where(eq(assets.id, id))
+    .where(and(eq(assets.id, id), isNull(assets.removedAt)))
     .limit(1);
   return row ? toAsset(row) : null;
 }

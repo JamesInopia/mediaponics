@@ -10,9 +10,16 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "ingest": "tsx --env-file=.env ingestion/index.ts",
+    "ingest:ci": "tsx ingestion/index.ts",
+    "revalidate": "tsx --env-file=.env ingestion/revalidate.ts",
+    "revalidate:ci": "tsx ingestion/revalidate.ts",
+    "snapshot": "tsx --env-file=.env ingestion/snapshot.ts",
+    "snapshot:ci": "tsx ingestion/snapshot.ts",
     "test:ingest": "tsx --test ingestion/*.test.ts"
   },
   "dependencies": {
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
     "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.60.0",
     "next": "16.4.2",

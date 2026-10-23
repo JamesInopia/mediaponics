@@ -3,6 +3,7 @@ import { createIngestDb } from "../db/client.ts";
 import { fetchWikimediaAssets } from "./adapters/wikimedia.ts";
 import { writeSkipLog, summarizeSkips } from "./skip-log.ts";
 import { upsertAssets } from "./upsert.ts";
+import { failRun, finishRun, startRun } from "./runs.ts";
 
 function parseArgs(argv: string[]) {
   const args = {
@@ -45,7 +46,6 @@ async function main() {
     onProgress: (m) => console.log("  " + m),
   });
   const { skips, requests, perCategory } = fetched;
-  // --audio-only drops photos, diagrams and videos that happen to sit in an audio category.
   const assets = args.audioOnly
     ? fetched.assets.filter((a) => a.type === "Music" || a.type === "Sound Effects")
     : fetched.assets;
@@ -79,8 +79,15 @@ async function main() {
 
   const { db, close } = createIngestDb();
   try {
-    const counts = await upsertAssets(db, assets);
-    console.log("\nUpsert:", counts);
+    const runId = await startRun(db, "commons", "ingest");
+    try {
+      const counts = await upsertAssets(db, assets);
+      console.log("\nUpsert:", counts);
+      await finishRun(db, runId, { ...counts, skipped: summary.total });
+    } catch (err) {
+      await failRun(db, runId, err);
+      throw err;
+    }
   } finally {
     await close();
   }

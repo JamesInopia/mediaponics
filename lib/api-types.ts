@@ -39,3 +39,19 @@ export type ApiErrorCode = "not_found" | "rate_limited" | "internal_error";
 export type ApiError = {
   error: { code: ApiErrorCode; message: string };
 };
+
+export type SourceStatus = {
+  source: string;
+  name: string;
+  records: number;
+  removed: number;
+  lastIngestedAt: string | null;
+  lastIngestStatus: "ok" | "failed" | "running" | null;
+  lastRevalidatedAt: string | null;
+};
+
+export type StatusResponse = {
+  generatedAt: string;
+  totalRecords: number;
+  sources: SourceStatus[];
+};
