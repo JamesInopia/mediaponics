@@ -5,15 +5,26 @@ import { writeSkipLog, summarizeSkips } from "./skip-log.ts";
 import { upsertAssets } from "./upsert.ts";
 
 function parseArgs(argv: string[]) {
-  const args = { limit: 300, dryRun: false, categories: [] as string[] };
+  const args = {
+    limit: 300,
+    dryRun: false,
+    audioOnly: false,
+    maxRequests: undefined as number | undefined,
+    categories: [] as string[],
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--dry-run") args.dryRun = true;
     else if (a === "--limit") args.limit = Number(argv[++i]);
     else if (a === "--category") args.categories.push(argv[++i]);
+    else if (a === "--audio-only") args.audioOnly = true;
+    else if (a === "--max-requests") args.maxRequests = Number(argv[++i]);
     else throw new Error(`Unknown argument: ${a}`);
   }
   if (!Number.isInteger(args.limit) || args.limit < 1) throw new Error("--limit must be a positive integer");
+  if (args.maxRequests !== undefined && (!Number.isInteger(args.maxRequests) || args.maxRequests < 1)) {
+    throw new Error("--max-requests must be a positive integer");
+  }
   return args;
 }
 
@@ -26,12 +37,18 @@ async function main() {
 
   const runId = new Date().toISOString().replace(/[:.]/g, "-");
   console.log(`Fetching up to ${args.limit} records from Wikimedia Commons...`);
-  const { assets, skips, requests, perCategory } = await fetchWikimediaAssets({
+  const fetched = await fetchWikimediaAssets({
     userAgent,
     limit: args.limit,
+    maxRequestsPerCategory: args.maxRequests,
     categories: args.categories,
     onProgress: (m) => console.log("  " + m),
   });
+  const { skips, requests, perCategory } = fetched;
+  // --audio-only drops photos, diagrams and videos that happen to sit in an audio category.
+  const assets = args.audioOnly
+    ? fetched.assets.filter((a) => a.type === "Music" || a.type === "Sound Effects")
+    : fetched.assets;
 
   const log = writeSkipLog(skips, join(import.meta.dirname, "logs"), runId);
   const summary = summarizeSkips(skips);

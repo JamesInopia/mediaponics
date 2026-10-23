@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, CircleHelp, FilePenLine, Info } from "lucide-react";
 import SearchBox from "@/components/SearchBox";
@@ -38,10 +39,101 @@ function GithubMark({ className }: { className?: string }) {
   );
 }
 
-const creators = [
-  { name: "James Angelo Inopia", role: "Project Manager, Fullstack Developer" },
-  { name: "Harvey Tyson Ablen", role: "Back-end Developer" },
+type Creator = {
+  name: string;
+  roles: string[];
+  pfp: string;
+  pfpFocus?: string;
+  pfpZoom?: number;
+  github: string;
+  description: string;
+};
+
+const creators: Creator[] = [
+  {
+    name: "who?",
+    roles: ["Project Manager", "Fullstack Developer", "UI/UX"],
+    pfp: "/who_pfp.jpg",
+    pfpFocus: "19% 0%",
+    pfpZoom: 1.2,
+    github: "https://github.com/JamesInopia",
+    description: "Created the wireframe and mockup for mediaponics. Implemented majority of the features and pages.",
+  },
+  {
+    name: "panzerfaust",
+    roles: ["Fullstack Developer"],
+    pfp: "/panzerfaust_pfp.jpg",
+    pfpFocus: "50% 40%",
+    pfpZoom: 1.4,
+    github: "https://github.com/VIVII-viix",
+    description: "Implemented the content page, and wrote most of the project documentation.",
+  },
 ];
+
+function CreatorCard({
+  name,
+  roles,
+  pfp,
+  pfpFocus = "50% 50%",
+  pfpZoom = 1,
+  github,
+  description,
+}: Creator) {
+  const cardClass =
+    "group relative flex h-full items-start gap-5 rounded-lg border border-black/10 bg-white p-5 shadow-md transition duration-200 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100";
+
+  const body = (
+    <>
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border border-black/10 bg-neutral-100 shadow-md">
+        <Image
+          src={pfp}
+          alt={`${name}'s profile picture`}
+          fill
+          sizes="256px"
+          quality={95}
+          className="object-cover"
+          style={{
+            objectPosition: pfpFocus,
+            transformOrigin: pfpFocus,
+            transform: `scale(${pfpZoom})`,
+          }}
+        />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="pr-8 text-xl font-bold leading-tight">{name}</p>
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {roles.map((role) => (
+            <span
+              key={role}
+              className="rounded-full border border-black/30 px-2.5 py-0.5 text-xs font-semibold"
+            >
+              {role}
+            </span>
+          ))}
+        </div>
+        {description && (
+          <p className="mt-4 border-t border-black/10 pt-4 text-sm leading-relaxed text-black/70">
+            {description}
+          </p>
+        )}
+      </div>
+    </>
+  );
+
+  return github ? (
+    <a
+      href={github}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cardClass}
+    >
+      {body}
+    </a>
+  ) : (
+    <div className={cardClass}>{body}</div>
+  );
+}
 
 export default function Home() {
   return (
@@ -117,16 +209,9 @@ export default function Home() {
         <h2 className="mt-12 text-2xl font-bold">Check out the Creators</h2>
         <div className="mt-6 rounded-xl border border-black/10 bg-white p-6 shadow-md">
           <ul className="grid gap-4 md:grid-cols-2">
-            {creators.map(({ name, role }) => (
-              <li
-                key={name}
-                className="flex items-center gap-6 rounded-lg border border-black/10 bg-white p-3 shadow-md"
-              >
-                <div className="h-20 w-20 shrink-0 rounded-full border border-black/10 bg-neutral-100 shadow-md" />
-                <div>
-                  <p className="text-xl font-bold">{name}</p>
-                  <p className="mt-1 text-sm font-semibold">{role}</p>
-                </div>
+            {creators.map((creator) => (
+              <li key={creator.name}>
+                <CreatorCard {...creator} />
               </li>
             ))}
           </ul>
