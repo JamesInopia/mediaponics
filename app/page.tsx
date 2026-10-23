@@ -63,7 +63,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative min-h-[320px] border-black/10 md:border-l">
+        <div className="relative min-h-80 border-black/10 md:border-l">
           <HeroCarousel />
         </div>
       </section>
@@ -75,7 +75,10 @@ export default function Home() {
         Learn More <ChevronDown size={16} />
       </a>
 
-      <section id="explore" className="mx-auto max-w-7xl scroll-mt-4 px-6 py-12">
+      <section
+        id="explore"
+        className="mx-auto max-w-7xl scroll-mt-4 px-6 py-12"
+      >
         <h2 className="text-2xl font-bold">More to explore</h2>
 
         <div className="mt-6 grid gap-6 md:grid-cols-3">
@@ -83,7 +86,8 @@ export default function Home() {
             <Link
               key={title}
               href={href}
-              className="flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white p-8 text-center shadow-md transition duration-200 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100"            >
+              className="flex flex-col items-center gap-4 rounded-xl border border-black/10 bg-white p-8 text-center shadow-md transition duration-200 hover:scale-105 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:scale-100"
+            >
               <Icon size={28} strokeWidth={1.75} />
               <h3 className="text-xl font-bold">{title}</h3>
               <p className="text-sm text-black/70">{text}</p>

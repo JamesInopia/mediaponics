@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import FilterMenu from "@/components/FilterMenu";
 import { AssetCard, AssetRow } from "@/components/AssetViews";
@@ -9,41 +8,41 @@ import AssetPanel from "@/components/AssetPanel";
 import AssetRail from "@/components/AssetRail";
 import {
   ASSET_TYPES,
-  SECTION_ORDER,
   isAudio,
-  matchesQuery,
   parseDateRange,
   parseSort,
-  sortAssets,
-  withinDateRange,
   type Asset,
   type AssetType,
 } from "@/lib/assets";
-import { MOCK_ASSETS } from "@/lib/mock-assets";
+import { useAssetGroups, useAssetList } from "@/lib/use-assets";
+import {
+  ErrorState,
+  LoadMore,
+  ResultsSkeleton,
+} from "@/components/ResultStates";
+import { ITEMS_PER_GROUP, MAX_QUERY_LENGTH } from "@/lib/api-types";
 
 const PATH = "/content";
 const PER_SECTION = 4;
-const RAIL_MAX = 12;
 const gridClass = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
 export default function ContentBrowser() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-
-  const q = searchParams.get("q") ?? "";
+  const q = (searchParams.get("q") ?? "").slice(0, MAX_QUERY_LENGTH);
   const typeParam = searchParams.get("type") ?? "";
   const type: AssetType | "" = (ASSET_TYPES as readonly string[]).includes(
-    typeParam
+    typeParam,
   )
     ? (typeParam as AssetType)
     : "";
   const sort = parseSort(searchParams.get("sort"));
   const dateRange = parseDateRange(searchParams.get("added"));
   const selectedId = searchParams.get("asset") ?? "";
-  const selected = MOCK_ASSETS.find((a) => a.id === selectedId) ?? null;
 
   function update(
     changes: Record<string, string | null>,
-    mode: "push" | "replace" = "push"
+    mode: "push" | "replace" = "push",
   ) {
     const next = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(changes)) {
@@ -52,37 +51,44 @@ export default function ContentBrowser() {
     }
     const qs = next.toString();
     const url = qs ? `${PATH}?${qs}` : PATH;
-    if (mode === "push") window.history.pushState(null, "", url);
-    else window.history.replaceState(null, "", url);
+    if (mode === "push") router.push(url, { scroll: false });
+    else router.replace(url, { scroll: false });
   }
 
-  const results = useMemo(
-    () =>
-      sortAssets(
-        MOCK_ASSETS.filter(
-          (a) =>
-            (!type || a.type === type) &&
-            withinDateRange(a, dateRange) &&
-            (!q || matchesQuery(a, q))
-        ),
-        sort
-      ),
-    [type, dateRange, sort, q]
-  );
+  const filters = { q, sort, added: dateRange };
+
+  const groupQuery = useAssetGroups(type ? null : filters);
+  const list = useAssetList(type ? { ...filters, type } : null);
+
+  const groups = groupQuery.data?.groups ?? [];
+  const listItems = list.items;
+
+  const error = type ? list.error : groupQuery.error;
+  const hasData = type ? Boolean(list.data) : Boolean(groupQuery.data);
+  const showError = Boolean(error) && !hasData;
+  const isInitialLoading = !hasData && !error;
+  const isRefreshing = !type && hasData && groupQuery.isValidating;
+  const total = type ? list.total : groups.reduce((n, g) => n + g.total, 0);
+  const retry = type ? list.retry : () => void groupQuery.mutate();
+
+  const selected =
+    [...groups.flatMap((g) => g.items), ...listItems].find(
+      (a) => a.id === selectedId,
+    ) ?? null;
 
   const selectAsset = (a: Asset) => update({ asset: a.id });
   const closePanel = () => update({ asset: null });
 
   const hasSearchOrFilters = Boolean(
-    q || sort !== "relevance" || dateRange !== "any"
+    q || sort !== "relevance" || dateRange !== "any",
   );
   const listView = type !== "" && isAudio(type);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    const value = String(
-      new FormData(e.currentTarget).get("q") ?? ""
-    ).trim();
+    const value = String(new FormData(e.currentTarget).get("q") ?? "")
+      .trim()
+      .slice(0, MAX_QUERY_LENGTH);
     update({ q: value || null, asset: null });
   }
 
@@ -125,6 +131,7 @@ export default function ContentBrowser() {
             type="text"
             name="q"
             defaultValue={q}
+            maxLength={MAX_QUERY_LENGTH}
             placeholder="Search"
             aria-label="Search assets"
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
@@ -151,22 +158,30 @@ export default function ContentBrowser() {
       <section className="mx-auto max-w-7xl px-6 py-10">
         <div className="mb-6 flex items-center justify-between gap-4 text-sm text-black/60">
           <p aria-live="polite">
-            {results.length} {results.length === 1 ? "result" : "results"}
-            {q ? ` for “${q}”` : ""}
+            {isInitialLoading
+              ? "Loading..."
+              : showError
+                ? ""
+                : `${total} ${total === 1 ? "result" : "results"}${q ? ` for “${q}”` : ""}`}
           </p>
           {hasSearchOrFilters && (
             <button
               type="button"
-              onClick={() =>
-                update({ q: null, sort: null, added: null })
-              }
+              onClick={() => update({ q: null, sort: null, added: null })}
               className="underline hover:no-underline"
             >
               Clear search and filters
             </button>
           )}
         </div>
-        {results.length === 0 ? (
+        {showError ? (
+          <ErrorState
+            message={error instanceof Error ? error.message : undefined}
+            onRetry={retry}
+          />
+        ) : isInitialLoading ? (
+          <ResultsSkeleton variant={listView ? "rows" : "grid"} />
+        ) : total === 0 ? (
           <div className="rounded-xl border border-black/10 bg-white p-10 text-center shadow-md">
             <p className="font-semibold">No assets found</p>
             <p className="mt-1 text-sm text-black/60">
@@ -174,56 +189,51 @@ export default function ContentBrowser() {
             </p>
           </div>
         ) : type === "" ? (
-          <div className="space-y-12">
-            {SECTION_ORDER.map((section) => {
-              const items = results.filter((a) => a.type === section);
-              if (items.length === 0) return null;
-              return (
-                <section key={section} aria-labelledby={`sec-${section}`}>
-                  <div className="mb-4 flex items-baseline justify-between gap-4">
-                    <h2
-                      id={`sec-${section}`}
-                      className="text-xl font-bold"
+          <div
+            className={`space-y-12 transition-opacity ${isRefreshing ? "opacity-60" : ""}`}
+          >
+            {groups.map((group) => (
+              <section key={group.type} aria-labelledby={`sec-${group.type}`}>
+                <div className="mb-4 flex items-baseline justify-between gap-4">
+                  <h2 id={`sec-${group.type}`} className="text-xl font-bold">
+                    {group.type}
+                  </h2>
+                  {group.total > PER_SECTION && (
+                    <button
+                      type="button"
+                      onClick={() => update({ type: group.type })}
+                      className="text-sm font-semibold underline hover:no-underline"
                     >
-                      {section}
-                    </h2>
-                    {items.length > PER_SECTION && (
-                      <button
-                        type="button"
-                        onClick={() => update({ type: section })}
-                        className="text-sm font-semibold underline hover:no-underline"
-                      >
-                        See all {items.length}
-                      </button>
-                    )}
-                  </div>
-                  <AssetRail
-                    label={section}
-                    viewAll={
-                      items.length > RAIL_MAX
-                        ? {
-                            text: `View all ${items.length} ${section}`,
-                            onClick: () => update({ type: section }),
-                          }
-                        : undefined
-                    }
-                  >
-                    {items.slice(0, RAIL_MAX).map((a) => (
-                      <AssetCard
-                        key={a.id}
-                        asset={a}
-                        selected={a.id === selectedId}
-                        onSelect={() => selectAsset(a)}
-                      />
-                    ))}
-                  </AssetRail>
-                </section>
-              );
-            })}
+                      See all {group.total}
+                    </button>
+                  )}
+                </div>
+                <AssetRail
+                  label={group.type}
+                  viewAll={
+                    group.total > ITEMS_PER_GROUP
+                      ? {
+                          text: `View all ${group.total} ${group.type}`,
+                          onClick: () => update({ type: group.type }),
+                        }
+                      : undefined
+                  }
+                >
+                  {group.items.map((a) => (
+                    <AssetCard
+                      key={a.id}
+                      asset={a}
+                      selected={a.id === selectedId}
+                      onSelect={() => selectAsset(a)}
+                    />
+                  ))}
+                </AssetRail>
+              </section>
+            ))}
           </div>
         ) : listView ? (
           <div className="space-y-4">
-            {results.map((a) => (
+            {listItems.map((a) => (
               <AssetRow
                 key={a.id}
                 asset={a}
@@ -234,15 +244,26 @@ export default function ContentBrowser() {
           </div>
         ) : (
           <div className={gridClass}>
-            {results.map((a) => (
+            {listItems.map((a) => (
               <AssetCard
-                        key={a.id}
-                        asset={a}
-                        selected={a.id === selectedId}
-                        onSelect={() => selectAsset(a)}
-                      />
+                key={a.id}
+                asset={a}
+                selected={a.id === selectedId}
+                onSelect={() => selectAsset(a)}
+              />
             ))}
           </div>
+        )}
+
+        {type !== "" && !showError && total > 0 && (
+          <LoadMore
+            shown={listItems.length}
+            total={total}
+            hasMore={list.hasMore}
+            loading={list.isLoadingMore}
+            failed={Boolean(list.error)}
+            onClick={list.error ? list.retry : list.loadMore}
+          />
         )}
 
         <p className="mt-12 text-center text-xs text-black/40">

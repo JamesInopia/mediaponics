@@ -1,4 +1,9 @@
-import type { Asset, AssetType, LicenseId } from "@/lib/assets";
+import {
+  isAudio,
+  type Asset,
+  type AssetType,
+  type LicenseId,
+} from "@/lib/assets";
 
 type Seed = {
   title: string;
@@ -18,6 +23,9 @@ const CREATORS = [
   "Nova Audio",
   "Kei Tanaka",
 ];
+
+const SAMPLE_AUDIO_URL =
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 
 function mockAddedAt(key: string): string {
   let h = 0;
@@ -39,6 +47,7 @@ function build(type: AssetType, prefix: string, seeds: Seed[]): Asset[] {
     sourceId: `${prefix}-${i + 1}`,
     fetchedAt: mockAddedAt(`${prefix}-${i + 1}`),
     sourceUrl: `https://example.com/${prefix}/${i + 1}`,
+    previewUrl: isAudio(type) ? SAMPLE_AUDIO_URL : undefined,
     ...s,
   }));
 }
@@ -194,59 +203,253 @@ const FOOTAGE_ROWS: Row[] = [
 
 export const MOCK_ASSETS: Asset[] = [
   ...build("Images", "img", [
-    { title: "Neon city at night", license: "cc0", tags: ["city", "night", "neon"] },
-    { title: "Mountain lake at sunrise", license: "cc-by", tags: ["nature", "mountain", "lake"] },
-    { title: "Rain on a window", license: "cc-by-sa", tags: ["rain", "window", "moody"] },
-    { title: "Foggy forest path", license: "cc0", tags: ["forest", "fog", "nature"] },
-    { title: "Desert dunes", license: "cc-by", tags: ["desert", "sand", "landscape"] },
-    { title: "Abstract ink swirls", license: "non-commercial", tags: ["abstract", "ink", "texture"] },
-    { title: "Film grain texture", license: "cc0", tags: ["film", "grain", "texture"] },
-    { title: "Coffee shop interior", license: "cc-by", tags: ["cafe", "interior", "coffee"] },
+    {
+      title: "Neon city at night",
+      license: "cc0",
+      tags: ["city", "night", "neon"],
+    },
+    {
+      title: "Mountain lake at sunrise",
+      license: "cc-by",
+      tags: ["nature", "mountain", "lake"],
+    },
+    {
+      title: "Rain on a window",
+      license: "cc-by-sa",
+      tags: ["rain", "window", "moody"],
+    },
+    {
+      title: "Foggy forest path",
+      license: "cc0",
+      tags: ["forest", "fog", "nature"],
+    },
+    {
+      title: "Desert dunes",
+      license: "cc-by",
+      tags: ["desert", "sand", "landscape"],
+    },
+    {
+      title: "Abstract ink swirls",
+      license: "non-commercial",
+      tags: ["abstract", "ink", "texture"],
+    },
+    {
+      title: "Film grain texture",
+      license: "cc0",
+      tags: ["film", "grain", "texture"],
+    },
+    {
+      title: "Coffee shop interior",
+      license: "cc-by",
+      tags: ["cafe", "interior", "coffee"],
+    },
     ...more(IMAGE_ROWS, 1),
   ]),
   ...build("Vectors", "vec", [
-    { title: "Sound wave icon set", license: "cc0", tags: ["audio", "icons", "wave"] },
-    { title: "Play button pack", license: "cc-by", tags: ["play", "buttons", "ui"] },
-    { title: "Film strip border", license: "cc-by-sa", tags: ["film", "border", "frame"] },
-    { title: "Microphone line icon", license: "cc0", tags: ["microphone", "icon", "audio"] },
-    { title: "Clapperboard illustration", license: "non-commercial", tags: ["clapperboard", "film", "illustration"] },
-    { title: "Geometric shapes set", license: "cc-by", tags: ["shapes", "geometric", "abstract"] },
+    {
+      title: "Sound wave icon set",
+      license: "cc0",
+      tags: ["audio", "icons", "wave"],
+    },
+    {
+      title: "Play button pack",
+      license: "cc-by",
+      tags: ["play", "buttons", "ui"],
+    },
+    {
+      title: "Film strip border",
+      license: "cc-by-sa",
+      tags: ["film", "border", "frame"],
+    },
+    {
+      title: "Microphone line icon",
+      license: "cc0",
+      tags: ["microphone", "icon", "audio"],
+    },
+    {
+      title: "Clapperboard illustration",
+      license: "non-commercial",
+      tags: ["clapperboard", "film", "illustration"],
+    },
+    {
+      title: "Geometric shapes set",
+      license: "cc-by",
+      tags: ["shapes", "geometric", "abstract"],
+    },
     ...more(VECTOR_ROWS, 2),
   ]),
   ...build("GIFs", "gif", [
-    { title: "Loading spinner", license: "cc0", durationSec: 3, tags: ["loading", "spinner", "ui"] },
-    { title: "Confetti burst", license: "cc-by", durationSec: 4, tags: ["confetti", "party", "celebration"] },
-    { title: "Glitch transition", license: "cc-by-sa", durationSec: 2, tags: ["glitch", "transition", "digital"] },
-    { title: "Fire loop", license: "cc0", durationSec: 5, tags: ["fire", "loop", "flame"] },
-    { title: "Typing cursor", license: "non-commercial", durationSec: 3, tags: ["typing", "cursor", "text"] },
-    { title: "Rain on glass loop", license: "cc-by", durationSec: 6, tags: ["rain", "glass", "loop"] },
+    {
+      title: "Loading spinner",
+      license: "cc0",
+      durationSec: 3,
+      tags: ["loading", "spinner", "ui"],
+    },
+    {
+      title: "Confetti burst",
+      license: "cc-by",
+      durationSec: 4,
+      tags: ["confetti", "party", "celebration"],
+    },
+    {
+      title: "Glitch transition",
+      license: "cc-by-sa",
+      durationSec: 2,
+      tags: ["glitch", "transition", "digital"],
+    },
+    {
+      title: "Fire loop",
+      license: "cc0",
+      durationSec: 5,
+      tags: ["fire", "loop", "flame"],
+    },
+    {
+      title: "Typing cursor",
+      license: "non-commercial",
+      durationSec: 3,
+      tags: ["typing", "cursor", "text"],
+    },
+    {
+      title: "Rain on glass loop",
+      license: "cc-by",
+      durationSec: 6,
+      tags: ["rain", "glass", "loop"],
+    },
     ...more(GIF_ROWS, 3, [2, 8]),
   ]),
   ...build("Music", "mus", [
-    { title: "Uplifting corporate", genre: "Corporate", license: "cc0", durationSec: 142, tags: ["corporate", "upbeat", "background"] },
-    { title: "Calm lofi study beat", genre: "Lo-fi", license: "cc-by", durationSec: 96, tags: ["lofi", "chill", "study"] },
-    { title: "Epic cinematic trailer", genre: "Cinematic", license: "cc-by-sa", durationSec: 168, tags: ["cinematic", "epic", "trailer"] },
-    { title: "Dark suspense drone", genre: "Ambient", license: "non-commercial", durationSec: 75, tags: ["suspense", "dark", "horror"] },
-    { title: "Upbeat acoustic vlog", genre: "Acoustic", license: "cc0", durationSec: 121, tags: ["acoustic", "upbeat", "vlog"] },
-    { title: "Retro synthwave drive", genre: "Synthwave", license: "cc-by", durationSec: 183, tags: ["synthwave", "retro", "driving"] },
+    {
+      title: "Uplifting corporate",
+      genre: "Corporate",
+      license: "cc0",
+      durationSec: 142,
+      tags: ["corporate", "upbeat", "background"],
+    },
+    {
+      title: "Calm lofi study beat",
+      genre: "Lo-fi",
+      license: "cc-by",
+      durationSec: 96,
+      tags: ["lofi", "chill", "study"],
+    },
+    {
+      title: "Epic cinematic trailer",
+      genre: "Cinematic",
+      license: "cc-by-sa",
+      durationSec: 168,
+      tags: ["cinematic", "epic", "trailer"],
+    },
+    {
+      title: "Dark suspense drone",
+      genre: "Ambient",
+      license: "non-commercial",
+      durationSec: 75,
+      tags: ["suspense", "dark", "horror"],
+    },
+    {
+      title: "Upbeat acoustic vlog",
+      genre: "Acoustic",
+      license: "cc0",
+      durationSec: 121,
+      tags: ["acoustic", "upbeat", "vlog"],
+    },
+    {
+      title: "Retro synthwave drive",
+      genre: "Synthwave",
+      license: "cc-by",
+      durationSec: 183,
+      tags: ["synthwave", "retro", "driving"],
+    },
     ...more(MUSIC_ROWS, 4, [60, 210]),
   ]),
   ...build("Sound Effects", "sfx", [
-    { title: "Rain on roof", genre: "Ambience", license: "cc0", durationSec: 45, tags: ["rain", "ambience", "weather"] },
-    { title: "Door creak", genre: "Foley", license: "cc-by", durationSec: 6, tags: ["door", "horror", "foley"] },
-    { title: "Whoosh transition", genre: "Transition", license: "cc0", durationSec: 2, tags: ["whoosh", "transition", "swoosh"] },
-    { title: "Camera shutter click", genre: "Foley", license: "cc-by-sa", durationSec: 1, tags: ["camera", "click", "shutter"] },
-    { title: "Thunder rumble", genre: "Weather", license: "non-commercial", durationSec: 18, tags: ["thunder", "storm", "weather"] },
-    { title: "Footsteps on gravel", genre: "Foley", license: "cc-by", durationSec: 12, tags: ["footsteps", "gravel", "foley"] },
+    {
+      title: "Rain on roof",
+      genre: "Ambience",
+      license: "cc0",
+      durationSec: 45,
+      tags: ["rain", "ambience", "weather"],
+    },
+    {
+      title: "Door creak",
+      genre: "Foley",
+      license: "cc-by",
+      durationSec: 6,
+      tags: ["door", "horror", "foley"],
+    },
+    {
+      title: "Whoosh transition",
+      genre: "Transition",
+      license: "cc0",
+      durationSec: 2,
+      tags: ["whoosh", "transition", "swoosh"],
+    },
+    {
+      title: "Camera shutter click",
+      genre: "Foley",
+      license: "cc-by-sa",
+      durationSec: 1,
+      tags: ["camera", "click", "shutter"],
+    },
+    {
+      title: "Thunder rumble",
+      genre: "Weather",
+      license: "non-commercial",
+      durationSec: 18,
+      tags: ["thunder", "storm", "weather"],
+    },
+    {
+      title: "Footsteps on gravel",
+      genre: "Foley",
+      license: "cc-by",
+      durationSec: 12,
+      tags: ["footsteps", "gravel", "foley"],
+    },
     ...more(SFX_ROWS, 5, [1, 60]),
   ]),
   ...build("Stock Footage", "vid", [
-    { title: "Waves crashing, drone shot", genre: "Nature", license: "cc0", durationSec: 24, tags: ["ocean", "drone", "waves"] },
-    { title: "City traffic timelapse", genre: "Urban", license: "cc-by", durationSec: 18, tags: ["city", "traffic", "timelapse"] },
-    { title: "Rain on leaves, close-up", genre: "Nature", license: "cc-by-sa", durationSec: 12, tags: ["rain", "leaves", "nature"] },
-    { title: "Clouds timelapse", genre: "Nature", license: "cc0", durationSec: 30, tags: ["clouds", "sky", "timelapse"] },
-    { title: "Coffee pour in slow motion", genre: "Food & Drink", license: "non-commercial", durationSec: 9, tags: ["coffee", "slow motion", "pour"] },
-    { title: "Forest in morning mist", genre: "Nature", license: "cc-by", durationSec: 22, tags: ["forest", "mist", "morning"] },
+    {
+      title: "Waves crashing, drone shot",
+      genre: "Nature",
+      license: "cc0",
+      durationSec: 24,
+      tags: ["ocean", "drone", "waves"],
+    },
+    {
+      title: "City traffic timelapse",
+      genre: "Urban",
+      license: "cc-by",
+      durationSec: 18,
+      tags: ["city", "traffic", "timelapse"],
+    },
+    {
+      title: "Rain on leaves, close-up",
+      genre: "Nature",
+      license: "cc-by-sa",
+      durationSec: 12,
+      tags: ["rain", "leaves", "nature"],
+    },
+    {
+      title: "Clouds timelapse",
+      genre: "Nature",
+      license: "cc0",
+      durationSec: 30,
+      tags: ["clouds", "sky", "timelapse"],
+    },
+    {
+      title: "Coffee pour in slow motion",
+      genre: "Food & Drink",
+      license: "non-commercial",
+      durationSec: 9,
+      tags: ["coffee", "slow motion", "pour"],
+    },
+    {
+      title: "Forest in morning mist",
+      genre: "Nature",
+      license: "cc-by",
+      durationSec: 22,
+      tags: ["forest", "mist", "morning"],
+    },
     ...more(FOOTAGE_ROWS, 6, [8, 40]),
   ]),
 ];

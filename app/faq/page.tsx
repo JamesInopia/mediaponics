@@ -20,14 +20,13 @@ const sections: FaqSection[] = [
       {
         question: "What do the license badges mean?",
         answer: [
-          "Each badge summarizes the asset's license: whether you can use it commercially, edit it, and whether you must credit the creator.",
+          "A badge shows the asset's license name, such as CC0 or CC BY. Hover over it for a short description, and open the asset to see whether commercial use is allowed. The source's own page always has the full terms.",
         ],
       },
       {
-        question:
-          "Can I download assets directly from Mediaponics?",
+        question: "Why can't I download assets from Mediaponics?",
         answer: [
-          "No. We don't host any files. Every asset has a Go to source button that sends you to the official page, so you get the file and its terms from the source.",
+          "We don't host any files. Hosting other people's media would mean serving copies that could fall out of date if a creator changes the license or removes the asset. Instead, every asset has a Go to source button that sends you to the official page, where you get the file and its current terms.",
         ],
       },
     ],
@@ -37,9 +36,33 @@ const sections: FaqSection[] = [
     title: "Attribution",
     items: [
       {
+        question: "How does attribution work?",
+        answer: [
+          "Attribution means crediting the creator the way the license asks. CC0 assets need no credit. For CC BY, CC BY-SA and CC BY-NC assets, a good credit line includes the title, the creator, where you found it, and the license name, with links where you can. If you changed the asset, say so.",
+        ],
+      },
+      {
         question: "When do I need to credit the creator?",
         answer: [
           "Whenever the license requires it, for example CC BY. Each asset shows the credit text to copy. When in doubt, credit the creator anyway.",
+        ],
+      },
+      {
+        question: "What does a credit line look like?",
+        answer: [
+          "For example: “Rain on Window” by Jane Doe, from Wikimedia Commons, licensed under CC BY 4.0. Put it where viewers will see it, such as the video description or end credits.",
+        ],
+      },
+      {
+        question: "What does CC BY-SA mean for my project?",
+        answer: [
+          "Share-alike: if you adapt the asset, your adapted version must be shared under the same license. Whether a finished video counts as an adaptation can be a gray area, so read the license terms on the source page.",
+        ],
+      },
+      {
+        question: "Can I use CC BY-NC assets in a monetized video?",
+        answer: [
+          "Non-commercial licenses don't allow commercial use, and a monetized video can count as one depending on the situation. If you're unsure, choose a CC0 or CC BY asset instead, or ask the creator.",
         ],
       },
     ],
@@ -57,7 +80,7 @@ const sections: FaqSection[] = [
       {
         question: "How often is it updated?",
         answer: [
-          "Each source is re-checked on a schedule, and every asset shows when its license was last verified.",
+          "Our data is collected from each source's public listings and can lag behind. Sources can change or remove assets at any time, so check the official page before you use something.",
         ],
       },
       {
@@ -81,7 +104,7 @@ const sections: FaqSection[] = [
       {
         question: "How do I report an error or request removal?",
         answer: [
-          "Use the Report content link in the footer and include the asset's link and the reason.",
+          "Use the Report content link in the footer. It opens a new issue on our GitHub repository, so you'll need a free GitHub account. Include the asset's link and the reason for the report.",
         ],
       },
     ],
@@ -118,7 +141,7 @@ export default function FaqPage() {
         subtitle="Get quick answers to your questions"
       />
 
-      <div className="lg:pr-[min(21rem,max(0px,calc(1632px_-_100vw)))]">
+      <div className="lg:pr-[min(21rem,max(0px,calc(1632px-100vw)))]">
         <div className="mx-auto max-w-4xl space-y-12 px-6 py-12">
           {sections.map(({ id, title, items }) => (
             <section key={id} id={id} className="scroll-mt-8">
