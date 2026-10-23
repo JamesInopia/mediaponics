@@ -20,7 +20,7 @@ The High-Level System Architecture is designed for separation of concerns and ro
     * **Cache/Message Broker:** (e.g., Redis/RabbitMQ) Used for queuing high-frequency data ingestion and caching frequently accessed application state.
 4. **Ingestion / IoT Layer (Optional):** Endpoints specifically designed to ingest payload data from external sensors or media devices securely.
 
-![Architecture Diagram](/architecture.jpg)
+![Architecture Diagram](/public/architecture.jpg)
 
 ---
 
@@ -61,15 +61,6 @@ To run tests with coverage reporting:
 npm run test:coverage
 ```
 
-### Updating the Documentation
-Project documentation is located in the `/docs` folder. We use [Docusaurus / MkDocs] to generate our static docs site.
-1. Navigate to the docs directory: `cd docs`
-2. Install doc dependencies: `npm install`
-3. Run the local docs server: `npm run start`
-4. Make your Markdown edits in the `/docs/content` folder. The local server will hot-reload.
-
----
-
 ## How to Contribute
 
 We actively welcome and encourage contributions from the open-source community! Whether it's fixing a bug, adding a feature, or improving documentation, your help is appreciated.
@@ -89,9 +80,7 @@ Before writing any code, please check the [Issues tab](../../issues) to see if s
 ---
 
 ## Contributor Code of Conduct
-
 We are committed to providing a welcoming and inspiring community for all. 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md). 
 
 **Key tenets include:**
 * Using welcoming and inclusive language.
@@ -100,11 +89,3 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 * Focusing on what is best for the community.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team.
-
----
-
-## License
-
-This project is licensed under the **MIT License**. 
-
-By contributing to this repository, you agree that your contributions will be licensed under its MIT License. See the [LICENSE](LICENSE) file for the full legal text.
