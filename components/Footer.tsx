@@ -1,21 +1,59 @@
 import Link from "next/link";
+import { REPO_URL, REPORT_URL } from "@/lib/site";
+
+type FooterLink = { label: string; href?: string; external?: boolean };
 
 const columns = [
   {
     title: "Developers",
-    links: ["API docs", "Data snapshot", "Status", "Source code"],
+    links: [
+      { label: "API Docs" },
+      { label: "Data Snapshot" },
+      { label: "Status" },
+      { label: "Source Code", href: REPO_URL, external: true },
+    ],
   },
   {
     title: "Legal",
     links: [
-      "License summary",
-      "Terms",
-      "Privacy",
-      "Accessibility",
-      "Report content",
+      { label: "License Summary", href: "/licenses" },
+      { label: "Terms", href: "/terms" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Accessibility", href: "/accessibility" },
+      { label: "Report An Issue", href: REPORT_URL, external: true },
     ],
   },
 ];
+
+const linkClass = "text-black/70 hover:text-black hover:underline";
+
+function FooterItem({ label, href, external }: FooterLink) {
+  if (!href) {
+    // Not built yet: show it, but don't link to a dead page.
+    return (
+      <span className="text-black/40">
+        {label} <span className="text-xs">(coming soon)</span>
+      </span>
+    );
+  }
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={linkClass}
+      >
+        {label}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={linkClass}>
+      {label}
+    </Link>
+  );
+}
 
 export default function Footer() {
   return (
@@ -34,14 +72,9 @@ export default function Footer() {
           <div key={title}>
             <p className="text-sm font-semibold">{title}</p>
             <ul className="mt-4 space-y-3 text-sm">
-              {links.map((label) => (
-                <li key={label}>
-                  <Link
-                    href="/"
-                    className="text-black/70 hover:text-black hover:underline"
-                  >
-                    {label}
-                  </Link>
+              {links.map((link) => (
+                <li key={link.label}>
+                  <FooterItem {...link} />
                 </li>
               ))}
             </ul>
@@ -52,7 +85,9 @@ export default function Footer() {
       <div className="border-t border-black/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-5 text-xs text-black/60 md:flex-row md:justify-between">
           <p>Mediaponics is open source.</p>
-          <p>Informational only. The source site&apos;s license is the authority.</p>
+          <p>
+            Informational only. The source site&apos;s license is the authority.
+          </p>
         </div>
       </div>
     </footer>
