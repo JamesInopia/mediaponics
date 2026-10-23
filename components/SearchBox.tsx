@@ -4,19 +4,26 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import FilterMenu from "@/components/FilterMenu";
-import { ASSET_TYPES, type DateRangeId, type SortId } from "@/lib/assets";
+import { MAX_QUERY_LENGTH } from "@/lib/api-types";
+import {
+  ASSET_TYPES,
+  type AssetType,
+  type DateRangeId,
+  type SortId,
+} from "@/lib/assets";
 
 export default function SearchBox() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState<AssetType | "">("");
   const [sort, setSort] = useState<SortId>("relevance");
   const [dateRange, setDateRange] = useState<DateRangeId>("any");
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+    const q = query.trim().slice(0, MAX_QUERY_LENGTH);
     const params = new URLSearchParams();
-    if (query.trim()) params.set("q", query.trim());
+    if (q) params.set("q", q);
     if (type) params.set("type", type);
     if (sort !== "relevance") params.set("sort", sort);
     if (dateRange !== "any") params.set("added", dateRange);
@@ -30,6 +37,7 @@ export default function SearchBox() {
         <input
           type="text"
           value={query}
+          maxLength={MAX_QUERY_LENGTH}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search sound effects, music, graphics..."
           aria-label="Search assets"
@@ -40,7 +48,7 @@ export default function SearchBox() {
           <div className="relative">
             <select
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={(e) => setType(e.target.value as AssetType | "")}
               aria-label="Asset type"
               className="cursor-pointer appearance-none rounded-md bg-transparent py-1.5 pl-2 pr-7 text-sm hover:bg-black/5"
             >

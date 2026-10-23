@@ -24,8 +24,7 @@ const sections: FaqSection[] = [
         ],
       },
       {
-        question:
-          "Can I download assets directly from Mediaponics?",
+        question: "Can I download assets directly from Mediaponics?",
         answer: [
           "No. We don't host any files. Every asset has a Go to source button that sends you to the official page, so you get the file and its terms from the source.",
         ],
@@ -118,7 +117,7 @@ export default function FaqPage() {
         subtitle="Get quick answers to your questions"
       />
 
-      <div className="lg:pr-[min(21rem,max(0px,calc(1632px_-_100vw)))]">
+      <div className="lg:pr-[min(21rem,max(0px,calc(1632px-100vw)))]">
         <div className="mx-auto max-w-4xl space-y-12 px-6 py-12">
           {sections.map(({ id, title, items }) => (
             <section key={id} id={id} className="scroll-mt-8">

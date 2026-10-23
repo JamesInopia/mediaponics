@@ -8,7 +8,7 @@ import {
   PlayButton,
   Waveform,
   seedOf,
-  useFakePlayback,
+  useAudioPreview,
 } from "@/components/AssetViews";
 import {
   LICENSES,
@@ -56,7 +56,7 @@ export default function AssetPanel({
       role="dialog"
       aria-label={`Details for ${shown.title}`}
       inert={!open}
-      className={`fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-black/10 bg-white shadow-xl transition-transform duration-300 motion-reduce:transition-none sm:w-[26rem] md:w-[30rem] ${
+      className={`fixed inset-y-0 right-0 z-40 flex w-full flex-col border-l border-black/10 bg-white shadow-xl transition-transform duration-300 motion-reduce:transition-none sm:w-104 md:w-120 ${
         open ? "translate-x-0" : "translate-x-full"
       }`}
     >
@@ -75,7 +75,7 @@ export default function AssetPanel({
         </p>
       </div>
 
-      <PanelBody key={shown.id} asset={shown} />
+      <PanelBody key={`${shown.id}-${open}`} asset={shown} />
     </aside>
   );
 }
@@ -85,7 +85,9 @@ function PanelBody({ asset }: { asset: Asset }) {
   const audio = isAudio(asset.type);
   const duration = asset.durationSec ?? 0;
   const seed = seedOf(asset.id);
-  const { playing, progress, toggle } = useFakePlayback(duration);
+  const { playing, progress, toggle, failed, audioEl } = useAudioPreview(
+    asset.previewUrl,
+  );
 
   const actionBase =
     "inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold";
@@ -108,6 +110,7 @@ function PanelBody({ asset }: { asset: Asset }) {
 
       {audio ? (
         <div className="relative flex flex-col items-center gap-4 rounded-xl bg-neutral-50 px-4 py-8">
+          {audioEl}
           <PlayButton
             playing={playing}
             onClick={toggle}
@@ -120,9 +123,9 @@ function PanelBody({ asset }: { asset: Asset }) {
             bars={40}
             className="h-10 justify-center"
           />
-          {duration > CLIP_SECONDS && (
+          {(failed || duration > CLIP_SECONDS) && (
             <span className="text-xs text-black/50">
-              {CLIP_SECONDS}s preview
+              {failed ? "Preview unavailable" : `${CLIP_SECONDS}s preview`}
             </span>
           )}
         </div>
