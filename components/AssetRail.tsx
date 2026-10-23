@@ -4,14 +4,10 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { GRAY_HOVER, LIFT_HOVER } from "@/components/AssetViews";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-/** Width of one item so that 1 / 2 / 3 / 4 fit per view, matching the grid breakpoints. */
 const itemClass =
-  "shrink-0 snap-start basis-full sm:basis-[calc((100%-1.5rem)/2)] lg:basis-[calc((100%-3rem)/3)] xl:basis-[calc((100%-4.5rem)/4)]";
+  "min-w-0 shrink-0 snap-start basis-full sm:basis-[calc((100%-1.5rem)/2)] lg:basis-[calc((100%-3rem)/3)] xl:basis-[calc((100%-4.5rem)/4)]";
 
-/**
- * Horizontally scrolling row with left/right arrows.
- * Pass the items as children; optionally add a final "View all" tile.
- */
+
 export default function AssetRail({
   label,
   children,
@@ -21,7 +17,6 @@ export default function AssetRail({
   label: string;
   children: ReactNode[];
   viewAll?: { text: string; onClick: () => void };
-  /** Hover style of the View all tile, matching the cards in this row. */
   hover?: "lift" | "gray";
 }) {
   const scroller = useRef<HTMLUListElement>(null);
@@ -76,15 +71,13 @@ export default function AssetRail({
         <ChevronLeft size={20} />
       </button>
 
-      {/* Arrows sit in their own side columns, never over the cards.
-          Padding/negative margin keeps card shadows and selection rings from being clipped. */}
       <ul
         ref={scroller}
         className="-mx-3 -my-4 flex min-w-0 flex-1 scroll-px-3 snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-3 py-4 [scrollbar-width:none] motion-reduce:scroll-auto [&::-webkit-scrollbar]:hidden"
       >
         {children.map((child, i) => (
           <li key={i} className={`${itemClass} flex`}>
-            <div className="w-full [&>*]:h-full">{child}</div>
+            <div className="w-full min-w-0 [&>*]:h-full">{child}</div>
           </li>
         ))}
         {viewAll && (
