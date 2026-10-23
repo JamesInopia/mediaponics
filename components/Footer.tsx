@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { REPO_URL, REPORT_URL } from "@/lib/site";
+import { REPO_URL } from "@/lib/site";
 
 type FooterLink = { label: string; href?: string; external?: boolean };
 
@@ -17,10 +17,10 @@ const columns = [
     title: "Legal",
     links: [
       { label: "License Summary", href: "/licenses" },
-      { label: "Terms", href: "/terms" },
-      { label: "Privacy", href: "/privacy" },
-      { label: "Accessibility", href: "/accessibility" },
-      { label: "Report An Issue", href: REPORT_URL, external: true },
+      { label: "Terms" },
+      { label: "Privacy" },
+      { label: "Accessibility" },
+      { label: "Report An Issue" },
     ],
   },
 ];
@@ -30,7 +30,7 @@ const linkClass = "text-black/70 hover:text-black hover:underline";
 function FooterItem({ label, href, external }: FooterLink) {
   if (!href) {
     return (
-      <span className="text-black/40">
+      <span className="text-black/60">
         {label} <span className="text-xs">(coming soon)</span>
       </span>
     );

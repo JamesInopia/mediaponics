@@ -3,6 +3,7 @@ import { CircleHelp } from "lucide-react";
 import Accordion, { type AccordionItem } from "@/components/Accordion";
 import PageHeader from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
+import { REPORT_URL } from "@/lib/site";
 
 type FaqSection = { id: string; title: string; items: AccordionItem[] };
 
@@ -38,13 +39,13 @@ const sections: FaqSection[] = [
       {
         question: "How does attribution work?",
         answer: [
-          "Attribution means crediting the creator the way the license asks. CC0 assets need no credit. For CC BY, CC BY-SA and CC BY-NC assets, a good credit line includes the title, the creator, where you found it, and the license name, with links where you can. If you changed the asset, say so.",
+          "Attribution means crediting the creator the way the license asks. CC0 assets need no credit. For CC BY, CC BY-SA and CC BY-NC assets, a good credit line includes the title, the creator, where you found it, and the license name, with links where you can. If you changed the asset, say so. The details panel shows the title, creator, source and license, so you have what you need to write the line.",
         ],
       },
       {
         question: "When do I need to credit the creator?",
         answer: [
-          "Whenever the license requires it, for example CC BY. Each asset shows the credit text to copy. When in doubt, credit the creator anyway.",
+          "Whenever the license requires it: CC BY, CC BY-SA and CC BY-NC all do. Only CC0 and public domain assets need no credit. When in doubt, credit the creator anyway.",
         ],
       },
       {
@@ -74,13 +75,13 @@ const sections: FaqSection[] = [
       {
         question: "Where does the data come from?",
         answer: [
-          "From the supported sources listed on the About page. We store only metadata such as title, creator, duration, license and link, not the media files.",
+          "Right now, only from Wikimedia Commons, using its Featured media and Featured pictures collections. We include images, vectors, GIFs, stock footage, music and sound effects under CC0 or public domain, CC BY, CC BY-SA and CC BY-NC licenses. Files under other licenses, or with unclear creator or license information, are left out. We store only metadata such as title, creator, duration, license and link, not the media files. The About page lists the sources and links to their license terms.",
         ],
       },
       {
         question: "How often is it updated?",
         answer: [
-          "Our data is collected from each source's public listings and can lag behind. Sources can change or remove assets at any time, so check the official page before you use something.",
+          "A scheduled job refreshes the data from the source daily, and older records are re-checked regularly. Assets whose source page disappears, or whose license changes to one we don't support, are hidden from search. Data can still lag behind the source, so check the official page before you use something.",
         ],
       },
       {
@@ -104,7 +105,7 @@ const sections: FaqSection[] = [
       {
         question: "How do I report an error or request removal?",
         answer: [
-          "Use the Report content link in the footer. It opens a new issue on our GitHub repository, so you'll need a free GitHub account. Include the asset's link and the reason for the report.",
+          `Open a new issue at ${REPORT_URL}. You'll need a free GitHub account. Include the asset's link and the reason for the report. A dedicated report form is coming soon.`,
         ],
       },
     ],
@@ -116,7 +117,7 @@ const sections: FaqSection[] = [
       {
         question: "Is there an API or data dump?",
         answer: [
-          "That is planned. API docs and data snapshots will be linked in the footer once they are available.",
+          "A read-only JSON API already powers this site, but it is not documented yet and may change. API docs and data snapshots are coming soon and will be linked in the footer once they are available.",
         ],
       },
       {

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Info } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
-import { REPO_URL } from "@/lib/site";
+import { SOURCES } from "@/lib/assets";
+import { REPO_URL, REPORT_URL } from "@/lib/site";
 
 const navItems = [
   { id: "about", label: "About the Project" },
@@ -18,10 +19,31 @@ const cardClass = "rounded-xl border border-black/10 bg-white p-6 shadow-md";
 const bodyClass = "text-sm leading-7 text-black/70";
 
 const supportedSources = [
-  { name: "Wikimedia Commons", detail: "Asset types · License" },
-]; // placeholder
+  {
+    name: SOURCES.commons.name,
+    types: "Images, Vectors, GIFs, Stock Footage, Music, Sound Effects",
+    licenses: "CC0 / public domain, CC BY, CC BY-SA, CC BY-NC",
+    scope: "Featured media and Featured pictures collections",
+    termsUrl: SOURCES.commons.termsUrl,
+  },
+];
 
-const creators = [{ name: "Creator 1" }, { name: "Creator 2" }];
+const creators = [
+  {
+    name: "who?",
+    roles: "Project Manager, Fullstack Developer, UI/UX",
+    contribution:
+      "Created the wireframe and mockup. Implemented the majority of the features and pages.",
+    github: "https://github.com/JamesInopia",
+  },
+  {
+    name: "panzerfaust",
+    roles: "Fullstack Developer",
+    contribution:
+      "Implemented the content page and wrote most of the project documentation.",
+    github: "https://github.com/VIVII-viix",
+  },
+];
 
 function Section({
   id,
@@ -78,6 +100,11 @@ export default function AboutPage() {
                 from whoever publishes the asset.
               </p>
               <p className={bodyClass}>
+                Records are refreshed from the source on a daily schedule, and
+                assets that disappear from the source or change to an
+                unsupported license are hidden from search.
+              </p>
+              <p className={bodyClass}>
                 If the license asks for credit, you give it when you publish
                 your project. The{" "}
                 <Link
@@ -97,15 +124,45 @@ export default function AboutPage() {
                 <h3 className="text-xl font-bold">Supported Source</h3>
                 <p className={`mt-3 ${bodyClass}`}>
                   Sites whose assets we search and link to. Each one is listed
-                  with the asset types it offers and its license.
+                  with the asset types we include, the licenses we accept, and
+                  a link to the source&apos;s own reuse terms.
                 </p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  {supportedSources.map(({ name, detail }) => (
-                    <li key={name} className="flex justify-between gap-4">
-                      <span className="font-semibold">{name}</span>
-                      <span className="text-black/60">{detail}</span>
-                    </li>
-                  ))}
+                <ul className="mt-4 space-y-4 text-sm">
+                  {supportedSources.map(
+                    ({ name, types, licenses, scope, termsUrl }) => (
+                      <li key={name}>
+                        <p className="font-semibold">{name}</p>
+                        <dl className="mt-1 space-y-1">
+                          <div className="flex gap-1">
+                            <dt className="shrink-0 font-semibold">
+                              Asset types:
+                            </dt>
+                            <dd className="text-black/80">{types}</dd>
+                          </div>
+                          <div className="flex gap-1">
+                            <dt className="shrink-0 font-semibold">
+                              Licenses:
+                            </dt>
+                            <dd className="text-black/80">{licenses}</dd>
+                          </div>
+                          <div className="flex gap-1">
+                            <dt className="shrink-0 font-semibold">
+                              Collected from:
+                            </dt>
+                            <dd className="text-black/80">{scope}</dd>
+                          </div>
+                        </dl>
+                        <a
+                          href={termsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block font-semibold underline"
+                        >
+                          Source license terms
+                        </a>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
 
@@ -128,8 +185,13 @@ export default function AboutPage() {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/" className="font-semibold underline">
-                      How to contribute
+                    <Link
+                      href={`${REPO_URL}/issues`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold underline"
+                    >
+                      How to contribute (issues and pull requests)
                     </Link>
                   </li>
                   <li className="text-black/60">
@@ -142,11 +204,24 @@ export default function AboutPage() {
 
           <Section id="creators" title="Creators">
             <div className="grid gap-6 md:grid-cols-2">
-              {creators.map(({ name }) => (
+              {creators.map(({ name, roles, contribution, github }) => (
                 <div key={name} className={cardClass}>
                   <h3 className="text-xl font-bold">{name}</h3>
-                  <p className="mt-3 text-sm text-black/70">Roles:</p>
-                  <p className="mt-1 text-sm text-black/70">Contribution:</p>
+                  <p className="mt-3 text-sm text-black/70">
+                    <span className="font-semibold">Roles:</span> {roles}
+                  </p>
+                  <p className="mt-1 text-sm text-black/70">
+                    <span className="font-semibold">Contribution:</span>{" "}
+                    {contribution}
+                  </p>
+                  <a
+                    href={github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block text-sm font-semibold underline"
+                  >
+                    GitHub profile
+                  </a>
                 </div>
               ))}
             </div>
@@ -162,8 +237,17 @@ export default function AboutPage() {
 
           <Section id="contact" title="Contact">
             <p className={bodyClass}>
-              Questions, corrections or removal requests? Contact details will
-              be added here.
+              Questions, corrections or removal requests? Open an issue on our{" "}
+              <a
+                href={REPORT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline"
+              >
+                GitHub repository
+              </a>{" "}
+              (a free GitHub account is needed). Include the asset&apos;s link
+              and the reason. A dedicated report form is coming soon.
             </p>
           </Section>
         </div>
