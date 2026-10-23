@@ -20,6 +20,8 @@ The High-Level System Architecture is designed for separation of concerns and ro
     * **Cache/Message Broker:** (e.g., Redis/RabbitMQ) Used for queuing high-frequency data ingestion and caching frequently accessed application state.
 4. **Ingestion / IoT Layer (Optional):** Endpoints specifically designed to ingest payload data from external sensors or media devices securely.
 
+![Architecture Diagram](/architecture.jpg)
+
 ---
 
 ## 🚀 Getting Started (How to Run the Project)
