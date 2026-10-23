@@ -27,4 +27,4 @@ export async function GET(
     res.headers.set("Cache-Control", "no-store");
     return res;
   }
-}rmdir /s /q .next
+}
