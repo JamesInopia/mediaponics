@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
-import FilterMenu from "@/components/FilterMenu";
+import { LicenseMenu, SortDateMenu } from "@/components/FilterMenu";
 import { MAX_QUERY_LENGTH } from "@/lib/api-types";
 import {
   ASSET_TYPES,
   type AssetType,
   type DateRangeId,
+  type LicenseId,
   type SortId,
 } from "@/lib/assets";
 
@@ -18,6 +18,7 @@ export default function SearchBox() {
   const [type, setType] = useState<AssetType | "">("");
   const [sort, setSort] = useState<SortId>("relevance");
   const [dateRange, setDateRange] = useState<DateRangeId>("any");
+  const [licenses, setLicenses] = useState<LicenseId[]>([]);
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,6 +28,7 @@ export default function SearchBox() {
     if (type) params.set("type", type);
     if (sort !== "relevance") params.set("sort", sort);
     if (dateRange !== "any") params.set("added", dateRange);
+    if (licenses.length > 0) params.set("license", licenses.join(","));
     const qs = params.toString();
     router.push(qs ? `/content?${qs}` : "/content");
   }
@@ -45,32 +47,19 @@ export default function SearchBox() {
         />
 
         <div className="mt-4 flex items-center justify-between gap-2">
-          <div className="relative">
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as AssetType | "")}
-              aria-label="Asset type"
-              className="cursor-pointer appearance-none rounded-md bg-transparent py-1.5 pl-2 pr-7 text-sm hover:bg-black/5"
-            >
-              <option value="">All assets</option>
-              {ASSET_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2"
-            />
-          </div>
+          <SortDateMenu
+            sort={sort}
+            dateRange={dateRange}
+            onSortChange={setSort}
+            onDateRangeChange={setDateRange}
+            align="left"
+          />
 
           <div className="flex items-center gap-2">
-            <FilterMenu
-              sort={sort}
-              dateRange={dateRange}
-              onSortChange={setSort}
-              onDateRangeChange={setDateRange}
+            <LicenseMenu
+              licenses={licenses}
+              onChange={setLicenses}
+              align="right"
             />
             <button
               type="submit"

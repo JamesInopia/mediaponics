@@ -6,6 +6,7 @@ import {
   CLIP_SECONDS,
   LicenseBadge,
   PlayButton,
+  PreviewImage,
   Waveform,
   seedOf,
   useAudioPreview,
@@ -130,14 +131,7 @@ function PanelBody({ asset }: { asset: Asset }) {
           )}
         </div>
       ) : (
-        <div
-          className="flex aspect-video items-center justify-center rounded-xl"
-          style={{ backgroundColor: `hsl(0 0% ${92 - (seed % 5) * 4}%)` }}
-        >
-          <span className="text-xs font-semibold tracking-[0.3em] text-black/40">
-            PREVIEW
-          </span>
-        </div>
+        <PreviewImage asset={asset} className="aspect-video rounded-xl" />
       )}
 
       <h2 className="mt-6 text-2xl font-bold leading-snug">{asset.title}</h2>

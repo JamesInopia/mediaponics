@@ -5,6 +5,7 @@ import {
   desc,
   eq,
   gte,
+  inArray,
   lte,
   sql,
   type SQL,
@@ -17,6 +18,7 @@ import {
   DATE_RANGE_OPTIONS,
   SECTION_ORDER,
   parseDateRange,
+  parseLicenses,
   parseSort,
   type Asset,
   type AssetType,
@@ -45,6 +47,7 @@ const paramsSchema = z.object({
   type: z.enum(ASSET_TYPES).optional().catch(undefined),
   sort: z.string().transform(parseSort).catch("relevance"),
   added: z.string().transform(parseDateRange).catch("any"),
+  license: z.string().transform(parseLicenses).catch([]),
   page: z.coerce.number().int().min(1).max(MAX_PAGE).catch(DEFAULT_PAGE),
   limit: z.coerce
     .number()
@@ -71,6 +74,7 @@ function toTsQuery(q: string): string | null {
 function buildWhere(p: ParsedAssetParams, tsq: string | null, withType: boolean) {
   const conds: SQL[] = [];
   if (withType && p.type) conds.push(eq(assets.type, p.type));
+  if (p.license.length > 0) conds.push(inArray(assets.license, p.license));
 
   const days = DATE_RANGE_OPTIONS.find((o) => o.value === p.added)!.days;
   if (Number.isFinite(days)) {

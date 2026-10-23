@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,13 +15,17 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-black/10 bg-white">
+    <header className="relative z-10 bg-[#FFFAFA] shadow-md">
       <nav className="flex h-16 items-center justify-between px-6 md:px-16">
-        <Link
-          href="/"
-          className="flex h-10 w-20 items-center justify-center border border-black text-sm font-semibold md:w-32"
-        >
-          Logo
+        <Link href="/" aria-label="Mediaponics home" className="flex items-center">
+          <Image
+            src="/mediaponics_logo.png"
+            alt="Mediaponics"
+            width={160}
+            height={40}
+            priority
+            className="h-10 w-auto"
+          />
         </Link>
         <ul className="flex items-center gap-4 text-sm font-semibold md:gap-8">
           {links.map(({ href, label }) => {

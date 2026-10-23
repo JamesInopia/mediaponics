@@ -29,7 +29,6 @@ const linkClass = "text-black/70 hover:text-black hover:underline";
 
 function FooterItem({ label, href, external }: FooterLink) {
   if (!href) {
-    // Not built yet: show it, but don't link to a dead page.
     return (
       <span className="text-black/40">
         {label} <span className="text-xs">(coming soon)</span>
@@ -57,8 +56,8 @@ function FooterItem({ label, href, external }: FooterLink) {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-black/10 bg-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-[2fr_1fr_1fr]">
+    <footer className="relative z-10 bg-[#FFFAFA] shadow-[0_-4px_6px_-1px_rgb(0_0_0/0.1),0_-2px_4px_-2px_rgb(0_0_0/0.1)]">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 pt-12 md:grid-cols-[2fr_1fr_1fr]">
         <div>
           <p className="text-xl font-bold tracking-tight">Mediaponics</p>
           <p className="mt-3 max-w-sm text-sm leading-6 text-black/70">
@@ -82,13 +81,11 @@ export default function Footer() {
         ))}
       </div>
 
-      <div className="border-t border-black/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-5 text-xs text-black/60 md:flex-row md:justify-between">
-          <p>Mediaponics is open source.</p>
-          <p>
-            Informational only. The source site&apos;s license is the authority.
-          </p>
-        </div>
+      <div className="mx-auto flex max-w-7xl flex-col gap-1 px-6 pb-6 pt-8 text-xs text-black/60 md:flex-row md:justify-between">
+        <p>Mediaponics is open source.</p>
+        <p>
+          Informational only. The source site&apos;s license is the authority.
+        </p>
       </div>
     </footer>
   );

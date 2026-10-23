@@ -51,6 +51,23 @@ export const LICENSES: Record<
   },
 };
 
+export const LICENSE_IDS = Object.keys(LICENSES) as LicenseId[];
+
+export function parseLicenses(v: string | null | undefined): LicenseId[] {
+  const wanted = new Set((v ?? "").split(",").map((s) => s.trim()));
+  const picked = LICENSE_IDS.filter((id) => wanted.has(id));
+  return picked.length === LICENSE_IDS.length ? [] : picked;
+}
+
+export function toggleLicense(current: LicenseId[], id: LicenseId): LicenseId[] {
+  const effective = current.length === 0 ? LICENSE_IDS : current;
+  const next = effective.includes(id)
+    ? effective.filter((x) => x !== id)
+    : [...effective, id];
+  if (next.length === 0) return current;
+  return parseLicenses(next.join(","));
+}
+
 export const SORT_OPTIONS = [
   { value: "relevance", label: "Relevance" },
   { value: "newest", label: "Newest first" },

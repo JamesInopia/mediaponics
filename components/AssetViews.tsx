@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { ExternalLink, Pause, Play } from "lucide-react";
 import {
   LICENSES,
@@ -39,7 +39,7 @@ export function useAudioPreview(src?: string) {
       setFailed(false);
       await el.play();
     } catch {
-      setFailed(true); // bad URL, unsupported format or blocked playback
+      setFailed(true);
     }
   }
 
@@ -56,7 +56,6 @@ export function useAudioPreview(src?: string) {
     setProgress(el.currentTime / limit);
   }
 
-  // Render this somewhere inside the card. It has no visible UI.
   const audioEl = src ? (
     <audio
       ref={ref}
@@ -135,6 +134,60 @@ export function PlayButton({
         className={playing ? "" : "ml-0.5"}
       />
     </button>
+  );
+}
+
+/**
+ * Image/poster preview with a large diagonal "PREVIEW" word over the whole frame.
+ * Right-click, drag and text selection are blocked on it. This deters casual saving only:
+ * the browser still downloads the image, so it cannot be made truly unextractable.
+ */
+const PREVIEW_ANGLE = "-rotate-[35deg]"; // use rotate-[35deg] for the other diagonal
+
+export function PreviewImage({
+  asset,
+  className = "",
+  children,
+}: {
+  asset: Asset;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const [failed, setFailed] = useState(false);
+  const seed = seedOf(asset.id);
+
+  return (
+    <div
+      className={`relative isolate select-none overflow-hidden [container-type:size] ${className}`}
+      style={{ backgroundColor: `hsl(0 0% ${92 - (seed % 5) * 4}%)` }}
+      onContextMenu={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+    >
+      {asset.previewUrl && !failed && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={asset.previewUrl}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+      <div
+        aria-hidden
+        className="absolute inset-0 flex items-center justify-center overflow-hidden"
+      >
+        <span
+          className={`${PREVIEW_ANGLE} whitespace-nowrap text-[21cqw] font-black leading-none tracking-wide text-white/80 [text-shadow:0_0_14px_rgb(0_0_0/0.5)]`}
+        >
+          PREVIEW
+        </span>
+      </div>
+      {children}
+    </div>
   );
 }
 
@@ -223,19 +276,13 @@ export function AssetCard({ asset, selected = false, onSelect }: ViewProps) {
           </span>
         </div>
       ) : (
-        <div
-          className="relative flex aspect-video items-center justify-center"
-          style={{ backgroundColor: `hsl(0 0% ${92 - (seed % 5) * 4}%)` }}
-        >
-          <span className="text-xs font-semibold tracking-[0.3em] text-black/40">
-            PREVIEW
-          </span>
+        <PreviewImage asset={asset} className="aspect-video">
           {asset.durationSec !== undefined && (
             <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white">
               {formatDuration(asset.durationSec)}
             </span>
           )}
-        </div>
+        </PreviewImage>
       )}
 
       <div className="flex flex-1 flex-col gap-3 p-4">

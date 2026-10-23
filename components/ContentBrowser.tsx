@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import FilterMenu from "@/components/FilterMenu";
+import { LicenseMenu, SortDateMenu } from "@/components/FilterMenu";
 import { AssetCard, AssetRow } from "@/components/AssetViews";
 import AssetPanel from "@/components/AssetPanel";
 import AssetRail from "@/components/AssetRail";
@@ -10,11 +11,12 @@ import {
   ASSET_TYPES,
   isAudio,
   parseDateRange,
+  parseLicenses,
   parseSort,
   type Asset,
   type AssetType,
 } from "@/lib/assets";
-import { useAssetGroups, useAssetList } from "@/lib/use-assets";
+import { useAsset, useAssetGroups, useAssetList } from "@/lib/use-assets";
 import {
   ErrorState,
   LoadMore,
@@ -38,6 +40,7 @@ export default function ContentBrowser() {
     : "";
   const sort = parseSort(searchParams.get("sort"));
   const dateRange = parseDateRange(searchParams.get("added"));
+  const licenses = parseLicenses(searchParams.get("license"));
   const selectedId = searchParams.get("asset") ?? "";
 
   function update(
@@ -55,7 +58,7 @@ export default function ContentBrowser() {
     else router.replace(url, { scroll: false });
   }
 
-  const filters = { q, sort, added: dateRange };
+  const filters = { q, sort, added: dateRange, licenses };
 
   const groupQuery = useAssetGroups(type ? null : filters);
   const list = useAssetList(type ? { ...filters, type } : null);
@@ -71,16 +74,22 @@ export default function ContentBrowser() {
   const total = type ? list.total : groups.reduce((n, g) => n + g.total, 0);
   const retry = type ? list.retry : () => void groupQuery.mutate();
 
-  const selected =
+  const loaded =
     [...groups.flatMap((g) => g.items), ...listItems].find(
       (a) => a.id === selectedId,
     ) ?? null;
+  const detail = useAsset(selectedId || null);
+  const selected = selectedId ? (detail.data ?? loaded) : null;
+
+  useEffect(() => {
+    if (selectedId && detail.error && !loaded) update({ asset: null }, "replace");
+  }, [selectedId, detail.error, loaded]);
 
   const selectAsset = (a: Asset) => update({ asset: a.id });
   const closePanel = () => update({ asset: null });
 
   const hasSearchOrFilters = Boolean(
-    q || sort !== "relevance" || dateRange !== "any",
+    q || sort !== "relevance" || dateRange !== "any" || licenses.length > 0,
   );
   const listView = type !== "" && isAudio(type);
 
@@ -136,14 +145,26 @@ export default function ContentBrowser() {
             aria-label="Search assets"
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/40"
           />
-          <FilterMenu
+          <SortDateMenu
             sort={sort}
             dateRange={dateRange}
+            align="right"
+            compact
             onSortChange={(v) =>
               update({ sort: v === "relevance" ? null : v }, "replace")
             }
             onDateRangeChange={(v) =>
               update({ added: v === "any" ? null : v }, "replace")
+            }
+          />
+          <LicenseMenu
+            licenses={licenses}
+            align="right"
+            onChange={(next) =>
+              update(
+                { license: next.length > 0 ? next.join(",") : null },
+                "replace",
+              )
             }
           />
           <button
@@ -167,7 +188,9 @@ export default function ContentBrowser() {
           {hasSearchOrFilters && (
             <button
               type="button"
-              onClick={() => update({ q: null, sort: null, added: null })}
+              onClick={() =>
+                update({ q: null, sort: null, added: null, license: null })
+              }
               className="underline hover:no-underline"
             >
               Clear search and filters
@@ -266,9 +289,6 @@ export default function ContentBrowser() {
           />
         )}
 
-        <p className="mt-12 text-center text-xs text-black/40">
-          Sample data for layout preview only.
-        </p>
       </section>
 
       <AssetPanel asset={selected} onClose={closePanel} />

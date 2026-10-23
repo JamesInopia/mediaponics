@@ -1,10 +1,18 @@
-import type { Asset, AssetType, DateRangeId, SortId } from "@/lib/assets";
+import type {
+  Asset,
+  AssetType,
+  DateRangeId,
+  LicenseId,
+  SortId,
+} from "@/lib/assets";
+
 
 export type AssetListParams = {
   q?: string;
   type?: AssetType;
   sort?: SortId;
   added?: DateRangeId;
+  licenses?: LicenseId[];
   page?: number;
   limit?: number;
 };

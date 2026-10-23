@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
-import { getAssetList, getAssetGroups } from "./api";
+import { getAsset, getAssetList, getAssetGroups } from "./api";
 import type { AssetType } from "./assets";
 import type { AssetListParams } from "./api-types";
 
@@ -41,5 +41,11 @@ export function useAssetGroups(params: GroupParams | null) {
     {
       keepPreviousData: true,
     },
+  );
+}
+
+export function useAsset(id: string | null) {
+  return useSWR(id ? (["asset", id] as const) : null, ([, assetId]) =>
+    getAsset(assetId),
   );
 }
