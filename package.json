@@ -9,8 +9,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx --env-file=.env.local db/seed.ts",
-    "ingest": "tsx --env-file=.env.local ingestion/index.ts"
+    "ingest": "tsx --env-file=.env ingestion/index.ts",
+    "test:ingest": "tsx --test ingestion/*.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",
